@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <h2>Accès Admin</h2>
+            <p style="color:#666; margin-bottom:1rem; font-size:0.9rem">Entrez votre code PIN</p>
+            <input type="password" id="pinCode" class="login-input" placeholder="Code PIN (ex: 1234)">
+            <button onclick="login()" class="btn btn-primary" style="width:100%">Entrer</button>
+        </div>
+    </div>
+    <script>
+        function login() {
+            const pin = document.getElementById('pinCode').value;
+            if(pin === "1234") { // CODE PIN SIMPLE
+                sessionStorage.setItem('admin_auth', 'true');
+                window.location.href = 'index.html';
+            } else {
+                alert("Code PIN incorrect");
+            }
+        }
+    </script>
+</body>
+</html>

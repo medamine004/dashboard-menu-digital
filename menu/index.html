@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <meta name="theme-color" content="#000000">
+  <title>Menu • Tarek</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="menu.css">
+  </head>
+<body>
+
+  <div class="hero-banner">
+    <video class="hero-video" autoplay muted loop playsinline poster="image/dapinos log.jpeg">
+      <source src="video/food.mp4" type="video/mp4">
+    </video>
+
+    <div class="hero-overlay">
+      <div class="brand-container">
+        <img src="image/dapinos log.jpeg" alt="Logo" class="brand-logo">
+        <div class="brand-info">
+          <h1>Tarek</h1>
+          <p>Welcome to tarek dig</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sticky-header">
+    <div class="cat-list" id="cat-list"></div>
+  </div>
+
+  <main class="menu-list" id="menu-list"></main>
+
+  <footer class="app-footer">
+    <span class="footer-logo">Da Pino's</span>
+    
+    <p style="margin: 5px 0 15px; font-size: 0.9rem; color: var(--text-muted); font-weight: 500;">
+      <i class="fas fa-map-marker-alt" style="color:var(--primary); margin-right:5px"></i> 
+      Jim Djerba, Route de Bac
+    </p>
+
+    <div class="footer-socials">
+      <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+      <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+      <a href="#" class="social-link"><i class="fas fa-globe"></i></a>
+    </div>
+    <p class="footer-copy">© 2026 Menu. Fait avec <i class="fas fa-heart" style="color:var(--primary)"></i> à Tunis.</p>
+  </footer>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="window.scrollTo(0,0)">
+      <i class="fas fa-utensils"></i>
+      <span>Menu</span>
+    </button>
+    <button class="nav-btn" onclick="openCart()">
+      <i class="fas fa-shopping-bag"></i>
+      <span class="cart-badge" id="nav-badge">0</span>
+      <span>Panier</span>
+    </button>
+    <button class="nav-btn" onclick="toggleTheme()">
+      <i class="fas fa-moon" id="theme-icon"></i>
+      <span>Mode</span>
+    </button>
+  </nav>
+
+  <div class="drawer-overlay" id="drawer">
+    <div class="drawer-bg" style="position:absolute;inset:0" onclick="closeCart()"></div>
+    <div class="cart-panel">
+      <div style="display:flex; justify-content:space-between; margin-bottom:1rem">
+        <h2 style="font-size:1.3rem; font-weight:800">Votre Panier</h2>
+        <i class="fas fa-times" onclick="closeCart()" style="font-size:1.2rem; cursor:pointer"></i>
+      </div>
+
+      <div class="order-options">
+        <input type="radio" name="orderType" id="opt-surplace" value="Sur Place" onchange="toggleTableInput()">
+        <label for="opt-surplace" class="option-label"><i class="fas fa-chair"></i> Sur Place</label>
+        <input type="radio" name="orderType" id="opt-emporter" value="A Emporter" checked onchange="toggleTableInput()">
+        <label for="opt-emporter" class="option-label"><i class="fas fa-shopping-bag"></i> A Emporter</label>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:1rem;">
+        <div class="table-input-group" id="table-group">
+          <input type="number" id="table-num" class="form-input" placeholder="📍 Numéro de table (ex: 5)">
+        </div>
+      </div>
+      
+      <div id="cart-items" style="flex:1; overflow-y:auto; margin-bottom:1rem"></div>
+      
+      <div style="border-top:1px solid var(--border); padding-top:1rem">
+        <div style="display:flex; justify-content:space-between; font-weight:800; font-size:1.2rem; margin-bottom:1rem">
+          <span>Total</span>
+          <span id="cart-total">0.00 DT</span>
+        </div>
+        <button class="btn-whatsapp" onclick="order()">
+          <i class="fab fa-whatsapp" style="font-size:1.6rem"></i> Commander via WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+   <script src="../core/data.js"></script> 
+  
+  <script src="menu.js"></script>
+ 
+</body>
+</html>
