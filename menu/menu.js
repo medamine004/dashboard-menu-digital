@@ -1,10 +1,11 @@
 /**
  * MENU CLIENT LOGIC (menu/menu.js)
- * Version avec Feedback UX (Toasts)
+ * Version avec Feedback UX (Toasts) et Images GitHub
  */
 
 const WHATSAPP_NUMBER = "21658052184"; 
 const PLACEHOLDER_IMG = "https://placehold.co/400x300?text=Image+Non+Dispo";
+const GITHUB_BASE_URL = "https://raw.githubusercontent.com/medamine004/dashboard-menu-digital/main/menu/";
 
 // --- VARIABLES GLOBALES ---
 let menu = [];
@@ -74,10 +75,16 @@ function renderMenu() {
     }
 
     grid.innerHTML = items.map(item => {
+        // --- GESTION IMAGES GITHUB ---
         let displayImg = item.img || '';
-        if (displayImg.startsWith('../menu/')) {
-            displayImg = displayImg.replace('../menu/', '');
+        
+        // Si c'est un chemin local (commence par ../menu/ ou image/), on le transforme en URL GitHub
+        if (displayImg.startsWith('../menu/') || displayImg.startsWith('image/')) {
+            // On nettoie le chemin pour ne garder que la partie relative (ex: "image/plat.jpg")
+            let cleanPath = displayImg.replace('../menu/', '');
+            displayImg = GITHUB_BASE_URL + cleanPath;
         }
+        // Sinon (Base64 ou URL déjà complète), on laisse tel quel
 
         return `
         <div class="dish-card">
@@ -232,7 +239,7 @@ function order() {
     }, 1000);
 }
 
-// --- ✨ FONCTION TOAST UX (NOUVEAU) ---
+// --- ✨ FONCTION TOAST UX ---
 function showToast(message, type = 'normal') {
     const container = document.getElementById('toast-container');
     if (!container) return; // Sécurité si le HTML n'existe pas
