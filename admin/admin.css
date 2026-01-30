@@ -12,7 +12,7 @@
     --border-light: #27272a;
 
     /* Typographie */
-    --text-primary: #fafafa; /* Blanc cassé (plus doux) */
+    --text-primary: #fafafa; /* Blanc cassé */
     --text-secondary: #a1a1aa; /* Gris moyen */
     --text-muted: #52525b;   /* Gris foncé */
 
@@ -40,7 +40,7 @@ body {
     height: 100vh;
     overflow: hidden;
     font-size: 14px;
-    -webkit-font-smoothing: antialiased; /* Rendu typo Apple */
+    -webkit-font-smoothing: antialiased;
 }
 
 /* ────────────────────────────────────────────────
@@ -101,7 +101,6 @@ body {
     border: 1px solid var(--border-light);
 }
 
-/* Bouton déconnexion en bas */
 .nav-link:last-child {
     margin-top: auto;
     color: var(--text-secondary);
@@ -118,7 +117,7 @@ body {
     flex: 1;
     overflow-y: auto;
     padding: 2.5rem;
-    background: var(--bg-app); /* Continuité fluide */
+    background: var(--bg-app);
 }
 
 h2 {
@@ -137,7 +136,7 @@ h3 {
 }
 
 /* ────────────────────────────────────────────────
-   STATS CARDS (Style "Glass")
+   STATS CARDS
    ──────────────────────────────────────────────── */
 .stats-grid {
     display: grid;
@@ -176,18 +175,23 @@ h3 {
 }
 
 /* ────────────────────────────────────────────────
-   TABLEAUX (Minimalistes)
+   TABLEAUX (AVEC FIX SCROLL MOBILE)
    ──────────────────────────────────────────────── */
 .table-container {
     background: var(--bg-surface);
     border: 1px solid var(--border-light);
     border-radius: var(--radius);
-    overflow: hidden; /* Coins arrondis */
     margin-top: 1rem;
+    
+    /* Correction Scroll Mobile */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 table {
     width: 100%;
+    /* Force le scroll sur petits écrans */
+    min-width: 600px; 
     border-collapse: collapse;
 }
 
@@ -215,13 +219,12 @@ td {
 tr:last-child td { border-bottom: none; }
 tr:hover td { background: rgba(255,255,255,0.02); }
 
-/* Images dans le tableau */
 td img {
     border-radius: 6px;
     border: 1px solid var(--border-light);
 }
 
-/* Badges de statut */
+/* Badges */
 .status-badge {
     padding: 4px 10px;
     border-radius: 20px;
@@ -229,13 +232,11 @@ td img {
     font-weight: 600;
     display: inline-block;
 }
-
 .status-pending {
     background: rgba(245, 158, 11, 0.15);
     color: #fbbf24;
     border: 1px solid rgba(245, 158, 11, 0.2);
 }
-
 .status-completed {
     background: rgba(16, 185, 129, 0.15);
     color: #34d399;
@@ -243,7 +244,7 @@ td img {
 }
 
 /* ────────────────────────────────────────────────
-   BOUTONS (Style Apple/Stripe)
+   BOUTONS
    ──────────────────────────────────────────────── */
 .btn {
     padding: 8px 14px;
@@ -260,7 +261,6 @@ td img {
     font-family: var(--font-main);
 }
 
-/* Bouton Primaire (Blanc sur Noir) */
 .btn-primary {
     background: var(--accent);
     color: var(--accent-text);
@@ -272,7 +272,6 @@ td img {
     transform: translateY(-1px);
 }
 
-/* Bouton Danger (Subtil) */
 .btn-danger {
     background: transparent;
     color: var(--text-muted);
@@ -284,21 +283,20 @@ td img {
     border-color: rgba(239, 68, 68, 0.3);
 }
 
-/* Bouton Neutre / Annuler */
 .btn-sm {
     padding: 6px 10px;
     font-size: 0.8rem;
 }
 
 /* ────────────────────────────────────────────────
-   MODALES (Centrées & Ombres Douces)
+   MODALES
    ──────────────────────────────────────────────── */
 .modal {
     display: none;
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px); /* Effet flou moderne */
+    backdrop-filter: blur(4px);
     z-index: 1000;
     justify-content: center;
     align-items: center;
@@ -318,16 +316,18 @@ td img {
     border-radius: 16px;
     width: 420px;
     max-width: 90%;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
     transform: scale(0.95);
     transition: transform 0.2s ease;
+    /* Scroll interne si modale trop haute sur mobile */
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .modal.open .modal-content {
     transform: scale(1);
 }
 
-/* Formulaires */
 .form-group { margin-bottom: 1.2rem; }
 
 .form-group label {
@@ -355,10 +355,10 @@ input:focus {
     border-color: var(--text-secondary);
 }
 
-/* Input file customisation basique */
 input[type="file"] {
     color: var(--text-secondary);
     font-size: 0.85rem;
+    width: 100%;
 }
 input[type="file"]::file-selector-button {
     background: var(--bg-element);
@@ -371,7 +371,7 @@ input[type="file"]::file-selector-button {
 }
 
 /* ────────────────────────────────────────────────
-   SCROLLBAR (Chrome/Safari)
+   SCROLLBAR
    ──────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -382,7 +382,7 @@ input[type="file"]::file-selector-button {
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 /* ────────────────────────────────────────────────
-   LOGIN PAGE SPECIFIC
+   LOGIN
    ──────────────────────────────────────────────── */
 .login-container {
     background: var(--bg-app);
@@ -406,23 +406,31 @@ input[type="file"]::file-selector-button {
    ──────────────────────────────────────────────── */
 @media (max-width: 768px) {
     body { flex-direction: column; overflow-y: auto; }
+    
     .sidebar {
         width: 100%;
         border-right: none;
         border-bottom: 1px solid var(--border-light);
         flex-direction: row;
-        overflow-x: auto;
+        overflow-x: auto; /* Scroll horizontal pour le menu */
         padding: 1rem;
         gap: 1rem;
+        align-items: center;
     }
+    
     .logo { display: none; }
-    .nav-link { margin-bottom: 0; padding: 8px; }
-    .nav-link span { display: none; }
+    
+    .nav-link { margin-bottom: 0; padding: 8px; white-space: nowrap; }
+    
+    /* On cache le texte, on garde les icônes sur mobile pour gagner de la place */
+    /* .nav-link span { display: none; }  <-- Décommentez si vous voulez seulement les icônes */
+    
     .nav-link:last-child { margin-top: 0; margin-left: auto; }
+    
     .main-content { padding: 1.5rem; }
 }
 
-/* Sections management (obligatoire pour le JS existant) */
+/* Sections management */
 .section { display: none; animation: fadeIn 0.3s ease; }
 .section.active { display: block; }
 
