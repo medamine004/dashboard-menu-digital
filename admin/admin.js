@@ -1,11 +1,15 @@
 /**
- * ADMIN DASHBOARD (Firebase Edition)
+ * ADMIN DASHBOARD (Firestore + ImgBB Edition)
+ * Stockage gratuit des images via API ImgBB
  */
 import { 
-    db, storage, 
+    db, 
     collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, 
-    query, orderBy, ref, uploadBytes, getDownloadURL 
+    query, orderBy 
 } from "../core/data.js";
+
+// ⚠️ COLLE TA CLÉ API IMGBB ICI (Gratuit sur api.imgbb.com)
+const IMGBB_API_KEY = "daad728bfd5bc5f2739a9612b27c1410";
 
 // --- SÉCURITÉ ---
 if (!sessionStorage.getItem('admin_auth')) {
@@ -29,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.toggleActive = toggleActive;
     window.deleteProd = deleteProd;
     window.setStatus = setStatus;
-    window.loadOrders = () => {}; // Vide car géré par onSnapshot
+    window.loadOrders = () => {}; 
 });
 
 function logout() {
@@ -37,7 +41,31 @@ function logout() {
     window.location.href = 'login.html';
 }
 
-// --- 1. ÉCOUTEURS TEMPS RÉEL ---
+// --- 1. FONCTION UPLOAD IMGBB (NOUVEAU) ---
+async function uploadToImgBB(file) {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            return data.data.url; // Retourne l'URL directe de l'image
+        } else {
+            throw new Error("Erreur ImgBB: " + (data.error ? data.error.message : "Inconnue"));
+        }
+    } catch (error) {
+        console.error("Erreur Upload:", error);
+        throw error;
+    }
+}
+
+// --- 2. ÉCOUTEURS TEMPS RÉEL ---
 function initRealTimeListeners() {
     // Écoute Produits
     const qProducts = query(collection(db, "products"), orderBy("name"));
@@ -55,7 +83,7 @@ function initRealTimeListeners() {
     }, (error) => console.error("Erreur Commandes:", error));
 }
 
-// --- 2. UPLOAD & SAUVEGARDE ---
+// --- 3. SAUVEGARDE PRODUIT (MODIFIÉ) ---
 function setupImagePreview() {
     const fileInput = document.getElementById('prodImgFile');
     const preview = document.getElementById('imgPreview');
@@ -64,6 +92,7 @@ function setupImagePreview() {
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
+                // Max 32MB (Limite ImgBB) mais restons raisonnables (5Mo)
                 if(file.size > 5 * 1024 * 1024) return alert("Image trop lourde (Max 5Mo)");
                 selectedImageFile = file;
                 const reader = new FileReader();
@@ -80,10 +109,17 @@ function setupImagePreview() {
 async function saveProduct() {
     const saveBtn = document.querySelector('.btn-primary[onclick="saveProduct()"]');
     const originalText = saveBtn.innerText;
-    saveBtn.innerText = "Envoi...";
+    
+    // Feedback UI
+    saveBtn.innerText = "Upload en cours...";
     saveBtn.disabled = true;
 
     try {
+        // Validation Clé API
+        if (IMGBB_API_KEY === "REMPLACE_CECI_PAR_TA_CLE_IMGBB" || !IMGBB_API_KEY) {
+            throw new Error("Clé API ImgBB manquante dans le code !");
+        }
+
         const id = document.getElementById('prodId').value;
         const name = document.getElementById('prodName').value;
         const cat = document.getElementById('prodCat').value;
@@ -93,12 +129,10 @@ async function saveProduct() {
 
         if (!name || isNaN(price)) throw new Error("Nom et Prix requis");
 
-        // Upload Storage
+        // 🔥 UPLOAD VERS IMGBB SI NOUVELLE IMAGE 🔥
         if (selectedImageFile) {
-            const fileName = `products/${Date.now()}_${selectedImageFile.name}`;
-            const storageRef = ref(storage, fileName);
-            const snapshot = await uploadBytes(storageRef, selectedImageFile);
-            imgUrl = await getDownloadURL(snapshot.ref);
+            imgUrl = await uploadToImgBB(selectedImageFile);
+            console.log("Image uploadée sur ImgBB:", imgUrl);
         } else if (!imgUrl) {
             imgUrl = 'https://placehold.co/400x300?text=No+Image';
         }
@@ -112,9 +146,10 @@ async function saveProduct() {
         }
 
         closeModal();
-        alert("Produit enregistré ! ✅");
+        alert("Produit enregistré avec succès ! ✅");
 
     } catch (e) {
+        console.error(e);
         alert("Erreur : " + e.message);
     } finally {
         saveBtn.innerText = originalText;
@@ -122,7 +157,7 @@ async function saveProduct() {
     }
 }
 
-// --- 3. AFFICHAGE (UI) ---
+// --- 4. AFFICHAGE (UI) ---
 function renderProductsTable(products) {
     const tbody = document.querySelector('#products-table tbody');
     const catList = document.getElementById('catList');
@@ -211,7 +246,7 @@ function calculateStats(orders) {
     }
 }
 
-// --- 4. ACTIONS & MODALES ---
+// --- 5. ACTIONS & MODALES ---
 async function toggleActive(id, current) {
     try { await updateDoc(doc(db, "products", id), { active: !current }); } 
     catch(e) { alert("Erreur: " + e.message); }
