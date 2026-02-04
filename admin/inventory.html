@@ -1,0 +1,35 @@
+<main class="flex-1 flex flex-col h-full relative overflow-hidden">
+    <div class="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8">
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <h2 class="text-3xl font-bold text-white">Gestion de Stock</h2>
+                <p class="text-gray-500">Suivi des quantités et alertes.</p>
+            </div>
+            <button onclick="window.print()" class="hidden md:flex bg-white/5 hover:bg-white/10 text-white px-4 py-2 rounded-lg text-sm font-bold items-center gap-2">
+                <span class="material-symbols-outlined">print</span> Imprimer
+            </button>
+        </header>
+
+        <div id="stock-alerts" class="mb-8 grid grid-cols-1 gap-4">
+            </div>
+
+        <div class="bg-surface border border-border-color rounded-2xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-gray-400">
+                    <thead class="bg-white/5 text-white uppercase font-bold text-xs border-b border-border-color">
+                        <tr>
+                            <th class="p-4">Produit</th>
+                            <th class="p-4">Catégorie</th>
+                            <th class="p-4 text-center">En Stock</th>
+                            <th class="p-4 text-center">Conso. (Mois)</th>
+                            <th class="p-4 text-center">État</th>
+                            <th class="p-4 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-table-body" class="divide-y divide-white/5">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
