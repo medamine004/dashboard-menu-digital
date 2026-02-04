@@ -1,144 +1,126 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html class="dark" lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard • Tarek</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-    <link rel="stylesheet" href="admin.css">
-    
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Nextra Admin - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#D4AF37", "primary-hover": "#B5952F",
+                        "bg-dark": "#050505", "surface": "#121212",
+                        "border-color": "rgba(255,255,255,0.1)"
+                    },
+                    fontFamily: { "display": ["Inter", "sans-serif"] }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
-    <nav class="sidebar">
-        <div class="logo">Tarek Admin</div>
-        <div class="nav-link active" onclick="switchTab('dashboard')">
-            <i class="fas fa-chart-line"></i> <span>Statistiques</span>
-        </div>
-        <div class="nav-link" onclick="switchTab('orders')">
-            <i class="fas fa-clipboard-list"></i> <span>Commandes</span>
-        </div>
-        <div class="nav-link" onclick="switchTab('products')">
-            <i class="fas fa-utensils"></i> <span>Produits</span>
-        </div>
-        <div class="nav-link" onclick="logout()" style="margin-top:auto; color:#ef4444">
-            <i class="fas fa-sign-out-alt"></i> <span>Déconnexion</span>
-        </div>
-    </nav>
+<body class="bg-bg-dark text-white font-display flex h-screen overflow-hidden">
 
-    <main class="main-content">
-        
-        <div id="dashboard" class="section active">
-            <h2>Vue d'ensemble</h2>
-            <div class="stats-grid" style="margin-top:1rem">
-                <div class="stat-card">
-                    <div class="stat-val" id="stat-revenue-today">0 DT</div>
-                    <div class="stat-label">CA Aujourd'hui</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-val" id="stat-orders-count">0</div>
-                    <div class="stat-label">Commandes du jour</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-val" id="stat-revenue-7days">0 DT</div>
-                    <div class="stat-label">CA 7 Jours</div>
+    <aside class="w-64 bg-surface border-r border-border-color flex flex-col">
+        <div class="h-20 flex items-center px-8 border-b border-border-color">
+            <span class="material-symbols-outlined text-primary mr-2">bolt</span>
+            <h1 class="font-black text-xl tracking-tight">NEXTRA <span class="text-xs text-primary block font-normal tracking-widest">ADMIN</span></h1>
+        </div>
+        <nav class="flex-1 p-4 space-y-2">
+            <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 bg-primary/10 text-primary rounded-lg font-bold">
+                <span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+            <a href="orders.html" class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white rounded-lg transition-colors">
+                <span class="material-symbols-outlined">orders</span> Commandes
+            </a>
+            <a href="menu-editor.html" class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white rounded-lg transition-colors">
+                <span class="material-symbols-outlined">restaurant_menu</span> Menu Editor
+            </a>
+            <a href="inventory.html" class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white rounded-lg transition-colors">
+                <span class="material-symbols-outlined">inventory_2</span> Stock
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white rounded-lg transition-colors">
+                <span class="material-symbols-outlined">bar_chart</span> Rapports
+            </a>
+        </nav>
+        <div class="p-4 border-t border-border-color">
+            <button onclick="logout()" class="flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-500/10 rounded-lg w-full transition-colors">
+                <span class="material-symbols-outlined">logout</span> Déconnexion
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto p-8">
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <h2 class="text-3xl font-bold">Vue d'ensemble</h2>
+                <p class="text-gray-500">Bienvenue, voici ce qui se passe aujourd'hui.</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="bg-surface border border-border-color px-4 py-2 rounded-lg flex items-center gap-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <span class="text-sm font-bold">Système en ligne</span>
                 </div>
             </div>
-            
-            <h3>Dernières commandes</h3>
-            <div class="table-container">
-                <table id="dash-orders-table"></table>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-surface border border-border-color p-6 rounded-2xl relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <span class="material-symbols-outlined text-6xl text-primary">payments</span>
+                </div>
+                <p class="text-gray-400 text-sm font-medium uppercase tracking-wider">Chiffre d'Affaires</p>
+                <h3 class="text-3xl font-black mt-2" id="stat-revenue">0.00 DT</h3>
+                <p class="text-green-500 text-xs mt-2 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">trending_up</span> +12% vs hier
+                </p>
+            </div>
+
+            <div class="bg-surface border border-border-color p-6 rounded-2xl">
+                <p class="text-gray-400 text-sm font-medium uppercase tracking-wider">Commandes du jour</p>
+                <h3 class="text-3xl font-black mt-2 text-white" id="stat-orders">0</h3>
+                <p class="text-gray-500 text-xs mt-2">En attente: <span id="stat-pending" class="text-primary font-bold">0</span></p>
+            </div>
+
+            <div class="bg-surface border border-border-color p-6 rounded-2xl">
+                <p class="text-gray-400 text-sm font-medium uppercase tracking-wider">Profit Estimé</p>
+                <h3 class="text-3xl font-black mt-2 text-green-400" id="stat-profit">0.00 DT</h3>
+                <p class="text-gray-500 text-xs mt-2">Marge moyenne: 65%</p>
+            </div>
+
+            <div class="bg-surface border border-border-color p-6 rounded-2xl">
+                <p class="text-gray-400 text-sm font-medium uppercase tracking-wider">Occupation</p>
+                <h3 class="text-3xl font-black mt-2 text-white">42<span class="text-lg text-gray-500 font-normal">/100</span></h3>
+                <div class="w-full bg-gray-800 h-1.5 rounded-full mt-3 overflow-hidden">
+                    <div class="bg-primary h-full rounded-full" style="width: 42%"></div>
+                </div>
             </div>
         </div>
 
-        <div id="orders" class="section">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem">
-                <h2>Toutes les Commandes</h2>
-                <button class="btn btn-primary" onclick="loadOrders()"><i class="fas fa-sync"></i> Actualiser</button>
-            </div>
-            <div class="table-container">
-                <table id="all-orders-table">
-                    <thead>
+        <div class="bg-surface border border-border-color rounded-2xl p-6">
+            <h3 class="text-xl font-bold mb-4">Dernières Activités</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-gray-400">
+                    <thead class="bg-white/5 text-white uppercase font-bold text-xs">
                         <tr>
-                            <th>Heure</th>
-                            <th>Client/Table</th>
-                            <th>Total</th>
-                            <th>Type</th>
-                            <th>Statut</th>
-                            <th>Action</th>
+                            <th class="p-4 rounded-l-lg">Heure</th>
+                            <th class="p-4">Action</th>
+                            <th class="p-4">Détail</th>
+                            <th class="p-4 rounded-r-lg">Statut</th>
                         </tr>
                     </thead>
-                    <tbody></tbody>
+                    <tbody id="activity-log" class="divide-y divide-white/5">
+                        <tr><td class="p-4" colspan="4">Chargement...</td></tr>
+                    </tbody>
                 </table>
             </div>
         </div>
-
-        <div id="products" class="section">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem">
-                <h2>Gestion du Menu</h2>
-                <button class="btn btn-primary" onclick="openProductModal()"><i class="fas fa-plus"></i> Nouveau Produit</button>
-            </div>
-            <div class="table-container">
-                <table id="products-table">
-                    <thead>
-                        <tr>
-                            <th>Image</th>
-                            <th>Nom</th>
-                            <th>Catégorie</th>
-                            <th>Prix</th>
-                            <th>Visible</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-
     </main>
 
-    <div class="modal" id="productModal">
-        <div class="modal-content">
-            <h3 id="modalTitle" style="margin-bottom:1rem">Ajouter Produit</h3>
-            <input type="hidden" id="prodId">
-            
-            <div class="form-group">
-                <label>Nom du produit</label>
-                <input type="text" id="prodName">
-            </div>
-            <div class="form-group">
-                <label>Catégorie</label>
-                <input type="text" id="prodCat" list="catList">
-                <datalist id="catList"></datalist>
-            </div>
-            <div class="form-group">
-                <label>Prix (DT)</label>
-                <input type="number" step="0.5" id="prodPrice">
-            </div>
-            
-            <div class="form-group">
-                <label>Description (optionnel)</label>
-                <input type="text" id="prodDesc">
-            </div>
-
-            <div class="form-group">
-                <label>Image</label>
-                <input type="file" id="prodImgFile" accept="image/*" style="margin-bottom: 10px; width:100%">
-                
-                <input type="hidden" id="prodImg">
-                
-                <div style="text-align: center; margin-top: 5px;">
-                    <img id="imgPreview" src="" style="max-height: 80px; display: none; border-radius: 6px; border: 1px solid #ddd;">
-                </div>
-            </div>
-            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:1rem;">
-    <button type="button" class="btn" onclick="closeModal()">Annuler</button>
-    <button type="button" class="btn btn-primary" onclick="saveProduct()">Enregistrer</button>
-</div>
-        </div>
-    </div>
-
-    <script type="module" src="admin.js"></script>
-
+    <script type="module" src="js/admin-dashboard.js"></script>
 </body>
 </html>
