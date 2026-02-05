@@ -2,175 +2,140 @@
 <html class="dark" lang="fr">
 <head>
     <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Nextra Admin - Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>Nextra Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <script>
         tailwind.config = {
             darkMode: "class",
             theme: {
+                fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
                 extend: {
-                    colors: {
-                        "primary": "#D4AF37", "primary-hover": "#B5952F",
-                        "bg-dark": "#050505", "surface": "#121212",
-                        "border-color": "rgba(255,255,255,0.1)"
-                    },
-                    fontFamily: { "display": ["Inter", "sans-serif"] }
+                    colors: { "primary": "#D4AF37", "surface": "#121212", "bg-dark": "#050505" }
                 }
             }
         }
     </script>
+    <style>
+        body { background-color: #050505; color: white; }
+        /* Fix mobile sidebar transition */
+        #sidebar { transition: transform 0.3s ease-in-out; }
+        .nav-item.active { background: rgba(212, 175, 55, 0.1); color: #D4AF37; border: 1px solid rgba(212, 175, 55, 0.2); }
+    </style>
 </head>
-<body class="bg-bg-dark text-white font-display flex h-screen overflow-hidden">
+<body class="flex h-screen overflow-hidden">
 
-    <div id="mobile-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/80 z-20 hidden md:hidden glass"></div>
+    <div id="mobile-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/80 z-20 hidden md:hidden backdrop-blur-sm"></div>
 
-    <aside id="sidebar" class="fixed md:relative z-30 w-64 h-full bg-surface border-r border-border-color flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
-        <div class="h-20 flex items-center px-6 border-b border-border-color justify-between">
-            <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary">bolt</span>
-                <h1 class="font-black text-xl tracking-tight">NEXTRA</h1>
-            </div>
-            <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white">
-                <span class="material-symbols-outlined">close</span>
-            </button>
+    <aside id="sidebar" class="fixed md:relative z-30 w-64 h-full bg-surface border-r border-white/10 flex flex-col transform -translate-x-full md:translate-x-0">
+        <div class="h-16 flex items-center px-6 border-b border-white/10 justify-between">
+            <h1 class="font-bold text-xl tracking-tight text-white">NEXTRA <span class="text-primary text-xs">ADMIN</span></h1>
+            <button onclick="toggleSidebar()" class="md:hidden text-gray-400"><span class="material-symbols-outlined">close</span></button>
         </div>
         
-        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-            <a href="dashboard.html" class="nav-item flex items-center gap-3 px-4 py-3 bg-primary/10 text-primary rounded-lg font-bold">
+        <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+            <a href="dashboard.html" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all">
                 <span class="material-symbols-outlined">dashboard</span> Dashboard
             </a>
-            <a href="orders.html" class="nav-item flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white rounded-lg transition-colors">
+            <a href="orders.html" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all">
                 <span class="material-symbols-outlined">orders</span> Commandes
             </a>
-            <a href="menu-editor.html" class="nav-item flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white rounded-lg transition-colors">
+            <a href="menu-editor.html" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all">
                 <span class="material-symbols-outlined">restaurant_menu</span> Menu Editor
             </a>
-            <a href="inventory.html" class="nav-item flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white rounded-lg transition-colors">
+            <a href="inventory.html" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all">
                 <span class="material-symbols-outlined">inventory_2</span> Stock
             </a>
-            <a href="reports.html" class="nav-item flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white rounded-lg transition-colors">
+            <a href="reports.html" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all">
                 <span class="material-symbols-outlined">bar_chart</span> Rapports
             </a>
-            <a href="settings.html" class="nav-item flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white rounded-lg transition-colors">
+            <a href="settings.html" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all">
                 <span class="material-symbols-outlined">settings</span> Paramètres
             </a>
         </nav>
 
-        <div class="p-4 border-t border-border-color">
-            <button onclick="logout()" class="flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-500/10 rounded-lg w-full transition-colors font-medium">
+        <div class="p-4 border-t border-white/10">
+            <button onclick="window.logout()" class="flex items-center gap-3 px-3 py-3 text-red-400 hover:bg-red-500/10 rounded-lg w-full transition-all">
                 <span class="material-symbols-outlined">logout</span> Déconnexion
             </button>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col h-full relative overflow-hidden">
-        <header class="md:hidden h-16 bg-surface border-b border-border-color flex items-center justify-between px-4 z-10 shrink-0">
-            <button onclick="toggleSidebar()" class="text-white">
-                <span class="material-symbols-outlined">menu</span>
-            </button>
-            <span class="font-bold text-lg">Dashboard</span>
-            <div class="w-8"></div> </header>
+    <div class="flex-1 flex flex-col h-full relative overflow-hidden">
+        <header class="md:hidden h-16 bg-surface border-b border-white/10 flex items-center justify-between px-4 shrink-0">
+            <button onclick="toggleSidebar()" class="text-white"><span class="material-symbols-outlined">menu</span></button>
+            <span class="font-bold">Nextra</span>
+            <div class="w-6"></div>
+        </header>
 
-        <div class="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8">
-            <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <div>
-                    <h2 class="text-2xl md:text-3xl font-bold text-white">Vue d'ensemble</h2>
-                    <p class="text-gray-500 text-sm">Performances en temps réel.</p>
-                </div>
-                <div class="flex items-center gap-3">
-                    <span class="px-3 py-1 bg-green-500/10 text-green-500 text-xs font-bold rounded-full border border-green-500/20 flex items-center gap-2">
-                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> LIVE
-                    </span>
-                </div>
-            </header>
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 relative">
+            
+            <div id="dashboard-view">
+                <header class="mb-8">
+                    <h2 class="text-2xl font-bold text-white">Tableau de bord</h2>
+                    <p class="text-gray-500 text-sm">Vue d'ensemble de l'activité.</p>
+                </header>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-                <div class="bg-surface border border-border-color p-5 rounded-2xl relative overflow-hidden group hover:border-primary/30 transition-colors">
-                    <p class="text-gray-400 text-xs font-bold uppercase tracking-wider">Chiffre d'Affaires (J)</p>
-                    <h3 class="text-2xl md:text-3xl font-black mt-2 text-white" id="stat-revenue">0.00 DT</h3>
-                    <div class="absolute top-4 right-4 p-2 bg-primary/10 rounded-lg text-primary">
-                        <span class="material-symbols-outlined">payments</span>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-surface border border-white/10 p-5 rounded-xl">
+                        <p class="text-gray-400 text-xs font-bold uppercase">Chiffre d'Affaires</p>
+                        <h3 class="text-2xl font-bold text-white mt-2" id="stat-revenue">0.00 DT</h3>
+                    </div>
+                    <div class="bg-surface border border-white/10 p-5 rounded-xl">
+                        <p class="text-gray-400 text-xs font-bold uppercase">Commandes Actives</p>
+                        <h3 class="text-2xl font-bold text-primary mt-2" id="stat-active">0</h3>
+                    </div>
+                    <div class="bg-surface border border-white/10 p-5 rounded-xl">
+                        <p class="text-gray-400 text-xs font-bold uppercase">Profit Net (Est.)</p>
+                        <h3 class="text-2xl font-bold text-green-400 mt-2" id="stat-profit">0.00 DT</h3>
+                    </div>
+                    <div class="bg-surface border border-white/10 p-5 rounded-xl">
+                        <p class="text-gray-400 text-xs font-bold uppercase">Occupation</p>
+                        <h3 class="text-2xl font-bold text-white mt-2" id="stat-occupancy">0%</h3>
                     </div>
                 </div>
-                <div class="bg-surface border border-border-color p-5 rounded-2xl relative overflow-hidden">
-                    <p class="text-gray-400 text-xs font-bold uppercase tracking-wider">Commandes Actives</p>
-                    <h3 class="text-2xl md:text-3xl font-black mt-2 text-white" id="stat-active-orders">0</h3>
-                    <div class="absolute top-4 right-4 p-2 bg-blue-500/10 rounded-lg text-blue-500">
-                        <span class="material-symbols-outlined">room_service</span>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-surface border border-white/10 p-6 rounded-xl">
+                        <h3 class="font-bold mb-4">Ventes (7 jours)</h3>
+                        <canvas id="revenueChart" style="max-height: 250px;"></canvas>
                     </div>
-                </div>
-                <div class="bg-surface border border-border-color p-5 rounded-2xl relative overflow-hidden">
-                    <p class="text-gray-400 text-xs font-bold uppercase tracking-wider">Profit Net (Est.)</p>
-                    <h3 class="text-2xl md:text-3xl font-black mt-2 text-green-400" id="stat-profit">0.00 DT</h3>
-                    <div class="absolute top-4 right-4 p-2 bg-green-500/10 rounded-lg text-green-500">
-                        <span class="material-symbols-outlined">trending_up</span>
-                    </div>
-                </div>
-                <div class="bg-surface border border-border-color p-5 rounded-2xl relative overflow-hidden">
-                    <p class="text-gray-400 text-xs font-bold uppercase tracking-wider">Taux d'occupation</p>
-                    <h3 class="text-2xl md:text-3xl font-black mt-2 text-white">45%</h3>
-                    <div class="w-full bg-gray-800 h-1 rounded-full mt-3">
-                        <div class="bg-primary h-full rounded-full" style="width: 45%"></div>
+                    <div class="bg-surface border border-white/10 p-6 rounded-xl flex flex-col">
+                        <h3 class="font-bold mb-4">Dernières Activités</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-gray-400">
+                                <tbody id="activity-log" class="divide-y divide-white/5">
+                                    <tr><td class="py-3">Chargement...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div class="bg-surface border border-border-color p-6 rounded-2xl">
-                    <h3 class="font-bold mb-4">Ventes Hebdomadaires</h3>
-                    <canvas id="revenueChart" height="200"></canvas>
-                </div>
-                <div class="bg-surface border border-border-color p-6 rounded-2xl">
-                    <h3 class="font-bold mb-4">Top Produits</h3>
-                    <canvas id="productsChart" height="200"></canvas>
-                </div>
-            </div>
-
-            <div class="bg-surface border border-border-color rounded-2xl overflow-hidden">
-                <div class="p-5 border-b border-border-color">
-                    <h3 class="font-bold">Dernières Activités</h3>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-gray-400">
-                        <thead class="bg-white/5 text-white uppercase font-bold text-xs">
-                            <tr>
-                                <th class="p-4 whitespace-nowrap">Heure</th>
-                                <th class="p-4 whitespace-nowrap">Client / Table</th>
-                                <th class="p-4 whitespace-nowrap">Montant</th>
-                                <th class="p-4 whitespace-nowrap">Statut</th>
-                            </tr>
-                        </thead>
-                        <tbody id="activity-log" class="divide-y divide-white/5">
-                            <tr><td colspan="4" class="p-4 text-center">Chargement...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </main>
+            </main>
+    </div>
 
     <script>
-        // Toggle Mobile Sidebar
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('mobile-overlay');
-            if (sidebar.classList.contains('-translate-x-full')) {
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.remove('hidden');
+            const sb = document.getElementById('sidebar');
+            const ov = document.getElementById('mobile-overlay');
+            if(sb.classList.contains('-translate-x-full')) {
+                sb.classList.remove('-translate-x-full');
+                ov.classList.remove('hidden');
             } else {
-                sidebar.classList.add('-translate-x-full');
-                overlay.classList.add('hidden');
+                sb.classList.add('-translate-x-full');
+                ov.classList.add('hidden');
             }
         }
-        function logout() {
-            sessionStorage.removeItem('admin_auth');
-            window.location.href = '../login.html'; // Ajuste le chemin selon ton projet
-        }
+        // Highlight active link
+        const currentParams = window.location.pathname.split('/').pop() || 'dashboard.html';
+        document.querySelectorAll('.nav-item').forEach(link => {
+            if(link.getAttribute('href') === currentParams) link.classList.add('active');
+        });
     </script>
+    
     <script type="module" src="js/admin-dashboard.js"></script>
 </body>
 </html>
