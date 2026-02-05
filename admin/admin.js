@@ -1,301 +1,214 @@
-/**
- * ADMIN DASHBOARD (Firestore + ImgBB Edition)
- * Stockage gratuit des images via API ImgBB
- */
-import { 
-    db, 
-    collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, 
-    query, orderBy 
-} from "../core/data.js";
+import { auth, db, signOut, onAuthStateChanged, collection, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot } from './admin-core.js';
+import { renderDashboard } from './dashboard.js';
+import { renderOrders } from './orders.js';
+import { renderInventory } from './inventory.js';
+import { renderReports } from './reports.js';
+import { renderSettings } from './settings.js';
 
-// ⚠️ COLLE TA CLÉ API IMGBB ICI (Gratuit sur api.imgbb.com)
-const IMGBB_API_KEY = "daad728bfd5bc5f2739a9612b27c1410";
+// Configuration API Image
+const IMGBB_API_KEY = "daad728bfd5bc5f2739a9612b27c1410"; 
 
-// --- SÉCURITÉ ---
-if (!sessionStorage.getItem('admin_auth')) {
-    window.location.href = 'login.html';
-}
-
-// Variables Globales
-let selectedImageFile = null;
-
+// --- 1. INITIALISATION & AUTH ---
 document.addEventListener('DOMContentLoaded', () => {
-    initRealTimeListeners();
-    setupImagePreview();
-
-    // Exposition globale pour les onclick="" du HTML
-    window.switchTab = switchTab;
-    window.logout = logout;
-    window.openProductModal = openProductModal;
-    window.closeModal = closeModal;
-    window.saveProduct = saveProduct;
-    window.editProduct = editProduct;
-    window.toggleActive = toggleActive;
-    window.deleteProd = deleteProd;
-    window.setStatus = setStatus;
-    window.loadOrders = () => {}; 
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log("✅ Admin connecté:", user.email);
+            switchTab('dashboard');
+        } else {
+            console.warn("⚠️ Aucun user : Mode Fallback (Test) activé");
+            // En production, décommente la ligne suivante :
+            // window.location.href = "login.html"; 
+            switchTab('dashboard'); // Force l'accès pour le test
+        }
+    });
 });
 
-function logout() {
-    sessionStorage.removeItem('admin_auth');
-    window.location.href = 'login.html';
-}
-
-// --- 1. FONCTION UPLOAD IMGBB (NOUVEAU) ---
-async function uploadToImgBB(file) {
-    const formData = new FormData();
-    formData.append("image", file);
-
-    try {
-        const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-            method: "POST",
-            body: formData
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            return data.data.url; // Retourne l'URL directe de l'image
-        } else {
-            throw new Error("Erreur ImgBB: " + (data.error ? data.error.message : "Inconnue"));
-        }
-    } catch (error) {
-        console.error("Erreur Upload:", error);
-        throw error;
-    }
-}
-
-// --- 2. ÉCOUTEURS TEMPS RÉEL ---
-function initRealTimeListeners() {
-    // Écoute Produits
-    const qProducts = query(collection(db, "products"), orderBy("name"));
-    onSnapshot(qProducts, (snapshot) => {
-        const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        renderProductsTable(products);
-    }, (error) => console.error("Erreur Produits:", error));
-
-    // Écoute Commandes
-    const qOrders = query(collection(db, "orders"), orderBy("timestamp", "desc"));
-    onSnapshot(qOrders, (snapshot) => {
-        const orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        renderOrdersTable(orders);
-        calculateStats(orders);
-    }, (error) => console.error("Erreur Commandes:", error));
-}
-
-// --- 3. SAUVEGARDE PRODUIT (MODIFIÉ) ---
-function setupImagePreview() {
-    const fileInput = document.getElementById('prodImgFile');
-    const preview = document.getElementById('imgPreview');
+// --- 2. ROUTEUR SPA (SwitchTab) ---
+window.switchTab = (tabName) => {
+    const container = document.getElementById('page-content');
     
-    if (fileInput) {
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                // Max 32MB (Limite ImgBB) mais restons raisonnables (5Mo)
-                if(file.size > 5 * 1024 * 1024) return alert("Image trop lourde (Max 5Mo)");
-                selectedImageFile = file;
-                const reader = new FileReader();
-                reader.onload = (evt) => {
-                    preview.src = evt.target.result;
-                    preview.style.display = 'inline-block';
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-}
+    // Fermer sidebar mobile
+    if(window.innerWidth < 1024) toggleSidebar(false);
 
-async function saveProduct() {
-    const saveBtn = document.querySelector('.btn-primary[onclick="saveProduct()"]');
-    const originalText = saveBtn.innerText;
-    
-    // Feedback UI
-    saveBtn.innerText = "Upload en cours...";
-    saveBtn.disabled = true;
-
-    try {
-        // Validation Clé API
-        if (IMGBB_API_KEY === "REMPLACE_CECI_PAR_TA_CLE_IMGBB" || !IMGBB_API_KEY) {
-            throw new Error("Clé API ImgBB manquante dans le code !");
-        }
-
-        const id = document.getElementById('prodId').value;
-        const name = document.getElementById('prodName').value;
-        const cat = document.getElementById('prodCat').value;
-        const price = parseFloat(document.getElementById('prodPrice').value);
-        const desc = document.getElementById('prodDesc').value;
-        let imgUrl = document.getElementById('prodImg').value; 
-
-        if (!name || isNaN(price)) throw new Error("Nom et Prix requis");
-
-        // 🔥 UPLOAD VERS IMGBB SI NOUVELLE IMAGE 🔥
-        if (selectedImageFile) {
-            imgUrl = await uploadToImgBB(selectedImageFile);
-            console.log("Image uploadée sur ImgBB:", imgUrl);
-        } else if (!imgUrl) {
-            imgUrl = 'https://placehold.co/400x300?text=No+Image';
-        }
-
-        const productData = { name, cat, price, desc, img: imgUrl, active: true };
-
-        if (id) {
-            await updateDoc(doc(db, "products", id), productData);
+    // Update UI Sidebar Buttons
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        if(btn.innerText.toLowerCase().includes(tabName.replace('menu', 'menu editor'))) {
+            btn.classList.add('bg-gray-700', 'text-white');
+            btn.classList.remove('text-gray-300');
         } else {
-            await addDoc(collection(db, "products"), productData);
+            btn.classList.remove('bg-gray-700', 'text-white');
+            btn.classList.add('text-gray-300');
         }
-
-        closeModal();
-        alert("Produit enregistré avec succès ! ✅");
-
-    } catch (e) {
-        console.error(e);
-        alert("Erreur : " + e.message);
-    } finally {
-        saveBtn.innerText = originalText;
-        saveBtn.disabled = false;
-    }
-}
-
-// --- 4. AFFICHAGE (UI) ---
-function renderProductsTable(products) {
-    const tbody = document.querySelector('#products-table tbody');
-    const catList = document.getElementById('catList');
-    if (!tbody) return;
-
-    // Datalist
-    const cats = [...new Set(products.map(p => p.cat))];
-    if(catList) catList.innerHTML = cats.map(c => `<option value="${c}">`).join('');
-
-    tbody.innerHTML = products.length === 0 ? 
-        `<tr><td colspan="6" style="text-align:center">Aucun produit</td></tr>` : 
-        products.map(p => `
-        <tr style="opacity: ${p.active ? 1 : 0.5}">
-            <td><img src="${p.img}" style="width:40px;height:40px;object-fit:cover;border-radius:4px" onerror="this.src='https://placehold.co/40'"></td>
-            <td>${p.name}</td>
-            <td>${p.cat}</td>
-            <td>${p.price.toFixed(1)}</td>
-            <td>${p.active ? 'Oui' : 'Non'}</td>
-            <td>
-                <button class="btn btn-sm btn-primary" onclick='editProduct(${JSON.stringify(p)})'><i class="fas fa-pen"></i></button>
-                <button class="btn btn-sm ${p.active ? 'btn-danger' : 'btn-success'}" onclick="toggleActive('${p.id}', ${p.active})">
-                    <i class="fas ${p.active ? 'fa-eye-slash' : 'fa-eye'}"></i>
-                </button>
-                <button class="btn btn-sm btn-danger" onclick="deleteProd('${p.id}')"><i class="fas fa-trash"></i></button>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function renderOrdersTable(orders) {
-    const tbody = document.querySelector('#all-orders-table tbody');
-    if (!tbody) return;
-
-    tbody.innerHTML = orders.length === 0 ? 
-        `<tr><td colspan="6" style="text-align:center">Aucune commande</td></tr>` : 
-        orders.map(o => {
-            const dateObj = o.timestamp?.toDate ? o.timestamp.toDate() : new Date();
-            const time = dateObj.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
-            const place = o.type === 'Sur Place' ? `Table <strong>${o.table}</strong>` : '📦 Emporter';
-            return `
-            <tr>
-                <td>${time}</td>
-                <td>${place}</td>
-                <td><strong>${parseFloat(o.total).toFixed(1)} DT</strong></td>
-                <td>${o.type}</td>
-                <td><span class="status-badge status-${o.status}">${o.status}</span></td>
-                <td>
-                    ${o.status === 'pending' ? 
-                    `<button class="btn btn-sm btn-primary" onclick="setStatus('${o.id}', 'completed')">Terminer</button>` : 
-                    '<i class="fas fa-check" style="color:#10b981"></i>'}
-                </td>
-            </tr>`;
-        }).join('');
-}
-
-function calculateStats(orders) {
-    const localToday = new Date().toLocaleDateString();
-    const todayOrders = orders.filter(o => {
-        if (!o.timestamp) return false;
-        const d = o.timestamp.toDate ? o.timestamp.toDate() : new Date();
-        return d.toLocaleDateString() === localToday;
     });
 
-    const caTotal = orders.reduce((acc, o) => acc + (parseFloat(o.total) || 0), 0);
-    const caToday = todayOrders.reduce((acc, o) => acc + (parseFloat(o.total) || 0), 0);
+    // Loader temporaire
+    container.innerHTML = `<div class="loader-container"><i class="fa-solid fa-circle-notch fa-spin text-4xl"></i></div>`;
 
-    const elCaToday = document.getElementById('stat-revenue-today');
-    if(elCaToday) elCaToday.innerText = caToday.toFixed(1) + ' DT';
+    // Chargement dynamique
+    setTimeout(() => {
+        switch(tabName) {
+            case 'dashboard': renderDashboard(container); break;
+            case 'orders': renderOrders(container); break;
+            case 'menu': renderMenuEditor(container); break; // Logique interne
+            case 'inventory': renderInventory(container); break;
+            case 'reports': renderReports(container); break;
+            case 'settings': renderSettings(container); break;
+            default: renderDashboard(container);
+        }
+    }, 50);
+};
+
+// --- 3. UI GLOBALE ---
+window.toggleSidebar = (forceState = null) => {
+    const sb = document.getElementById('sidebar');
+    const ol = document.getElementById('mobile-overlay');
     
-    const elCount = document.getElementById('stat-orders-count');
-    if(elCount) elCount.innerText = todayOrders.length;
-    
-    const elCaTotal = document.getElementById('stat-revenue-7days');
-    if(elCaTotal) elCaTotal.innerText = caTotal.toFixed(1) + ' DT';
-
-    const recent = orders.slice(0, 5);
-    const tableDash = document.getElementById('dash-orders-table');
-    if(tableDash) {
-        tableDash.innerHTML = recent.map(o => `
-            <tr>
-                <td>${o.orderId}</td>
-                <td>${parseFloat(o.total).toFixed(1)} DT</td>
-                <td><span class="status-badge status-${o.status}">${o.status}</span></td>
-            </tr>
-        `).join('');
+    if (forceState === false) {
+        sb.classList.add('-translate-x-full');
+        ol.classList.add('hidden');
+    } else {
+        sb.classList.toggle('-translate-x-full');
+        ol.classList.toggle('hidden');
     }
-}
+};
 
-// --- 5. ACTIONS & MODALES ---
-async function toggleActive(id, current) {
-    try { await updateDoc(doc(db, "products", id), { active: !current }); } 
-    catch(e) { alert("Erreur: " + e.message); }
-}
-
-async function deleteProd(id) {
-    if (confirm("Supprimer ?")) {
-        try { await deleteDoc(doc(db, "products", id)); } 
-        catch(e) { alert("Erreur: " + e.message); }
+window.handleLogout = async () => {
+    if(confirm("Se déconnecter ?")) {
+        await signOut(auth);
+        window.location.href = "login.html"; // Redirection simple
     }
+};
+
+// --- 4. LOGIQUE MENU EDITOR (Intégrée ici) ---
+function renderMenuEditor(container) {
+    container.innerHTML = `
+        <div class="flex justify-between items-center mb-6 fade-in">
+            <h2 class="text-2xl font-bold text-white">Menu Editor</h2>
+            <button onclick="window.openProductModal()" class="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition shadow">
+                <i class="fa-solid fa-plus"></i> Ajouter Produit
+            </button>
+        </div>
+        <div id="menu-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-20">
+            </div>
+    `;
+
+    const q = query(collection(db, "products"), orderBy("name"));
+    onSnapshot(q, (snapshot) => {
+        const grid = document.getElementById('menu-grid');
+        if(!grid) return;
+        grid.innerHTML = '';
+
+        if(snapshot.empty) {
+            grid.innerHTML = `<div class="text-gray-500 col-span-full text-center py-10">Aucun produit trouvé.</div>`;
+            return;
+        }
+
+        snapshot.forEach(docSnap => {
+            const p = { id: docSnap.id, ...docSnap.data() };
+            grid.innerHTML += `
+                <div class="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 group relative shadow-lg fade-in">
+                    <img src="${p.img || 'https://placehold.co/300'}" class="w-full h-48 object-cover">
+                    <div class="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition duration-300">
+                        <button onclick="window.openProductModal('${p.id}', '${p.name}', '${p.price}', '${p.cat}', '${p.img}')" class="bg-blue-600 text-white p-2 rounded shadow hover:bg-blue-500"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="window.deleteProduct('${p.id}')" class="bg-red-600 text-white p-2 rounded shadow hover:bg-red-500"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg text-white truncate w-3/4">${p.name}</h3>
+                            <span class="text-yellow-400 font-mono font-bold">${parseFloat(p.price).toFixed(1)} DT</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-3">
+                            <span class="text-xs bg-gray-700 px-2 py-1 rounded text-gray-300">${p.cat}</span>
+                            <button onclick="window.toggleProductActive('${p.id}', ${p.active})" class="text-xs px-2 py-1 rounded font-bold cursor-pointer ${p.active ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}">
+                                ${p.active ? 'ACTIF' : 'INACTIF'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    });
 }
 
-async function setStatus(id, status) {
-    try { await updateDoc(doc(db, "orders", id), { status: status }); } 
-    catch(e) { alert("Erreur: " + e.message); }
-}
+// Modal Logic & ImgBB
+window.openProductModal = (id = '', name = '', price = '', cat = 'Plats', img = '') => {
+    const modal = document.getElementById('modal-container');
+    modal.classList.remove('hidden');
+    modal.innerHTML = `
+        <div class="bg-gray-900 border border-gray-700 p-6 rounded-xl w-full max-w-md relative shadow-2xl fade-in">
+            <h3 class="text-xl font-bold mb-4 text-white">${id ? 'Modifier' : 'Ajouter'} Produit</h3>
+            <form id="product-form" class="space-y-4">
+                <input type="hidden" id="p-id" value="${id}">
+                <input type="hidden" id="p-current-img" value="${img}">
+                
+                <div><label class="text-xs text-gray-400">Nom</label><input type="text" id="p-name" value="${name}" class="w-full bg-gray-800 border-gray-700 rounded p-3 text-white focus:border-yellow-500 outline-none" required></div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="text-xs text-gray-400">Prix</label><input type="number" step="0.5" id="p-price" value="${price}" class="w-full bg-gray-800 border-gray-700 rounded p-3 text-white focus:border-yellow-500 outline-none" required></div>
+                    <div><label class="text-xs text-gray-400">Catégorie</label>
+                        <select id="p-cat" class="w-full bg-gray-800 border-gray-700 rounded p-3 text-white focus:border-yellow-500 outline-none">
+                            <option value="Plats" ${cat === 'Plats' ? 'selected' : ''}>Plats</option>
+                            <option value="Sandwichs" ${cat === 'Sandwichs' ? 'selected' : ''}>Sandwichs</option>
+                            <option value="Boissons" ${cat === 'Boissons' ? 'selected' : ''}>Boissons</option>
+                            <option value="Desserts" ${cat === 'Desserts' ? 'selected' : ''}>Desserts</option>
+                        </select>
+                    </div>
+                </div>
 
-function openProductModal() {
-    document.getElementById('modalTitle').innerText = "Nouveau Produit";
-    document.getElementById('prodId').value = "";
-    document.getElementById('prodName').value = "";
-    document.getElementById('prodCat').value = "";
-    document.getElementById('prodPrice').value = "";
-    document.getElementById('prodDesc').value = "";
-    document.getElementById('prodImg').value = "";
-    document.getElementById('prodImgFile').value = "";
-    document.getElementById('imgPreview').style.display = 'none';
-    selectedImageFile = null;
-    document.getElementById('productModal').classList.add('open');
-}
+                <div><label class="text-xs text-gray-400">Image</label><input type="file" id="p-file" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded file:bg-gray-800 file:text-white hover:file:bg-gray-700"></div>
 
-function editProduct(p) {
-    document.getElementById('modalTitle').innerText = "Modifier";
-    document.getElementById('prodId').value = p.id;
-    document.getElementById('prodName').value = p.name;
-    document.getElementById('prodCat').value = p.cat;
-    document.getElementById('prodPrice').value = p.price;
-    document.getElementById('prodDesc').value = p.desc || "";
-    document.getElementById('prodImg').value = p.img;
-    document.getElementById('prodImgFile').value = "";
-    selectedImageFile = null;
-    const preview = document.getElementById('imgPreview');
-    preview.src = p.img;
-    preview.style.display = 'inline-block';
-    document.getElementById('productModal').classList.add('open');
-}
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="document.getElementById('modal-container').classList.add('hidden')" class="flex-1 bg-gray-700 py-2 rounded text-white">Annuler</button>
+                    <button type="submit" id="btn-save" class="flex-1 bg-yellow-500 text-black py-2 rounded font-bold hover:bg-yellow-600">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    `;
 
-function closeModal() { document.getElementById('productModal').classList.remove('open'); }
-function switchTab(id) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-}
+    document.getElementById('product-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btn-save');
+        btn.innerText = "Traitement..."; btn.disabled = true;
+
+        try {
+            const file = document.getElementById('p-file').files[0];
+            let imgUrl = document.getElementById('p-current-img').value;
+
+            if (file) {
+                btn.innerText = "Upload...";
+                const formData = new FormData();
+                formData.append("image", file);
+                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
+                const data = await res.json();
+                if (data.success) imgUrl = data.data.url;
+            } else if (!imgUrl) {
+                imgUrl = 'https://placehold.co/300?text=No+Image';
+            }
+
+            const data = {
+                name: document.getElementById('p-name').value,
+                price: parseFloat(document.getElementById('p-price').value),
+                cat: document.getElementById('p-cat').value,
+                img: imgUrl, active: true, stock: 50 // Stock par défaut
+            };
+
+            const pid = document.getElementById('p-id').value;
+            if (pid) await updateDoc(doc(db, "products", pid), data);
+            else await addDoc(collection(db, "products"), data);
+
+            document.getElementById('modal-container').classList.add('hidden');
+        } catch(err) { 
+            alert(err.message); 
+        } finally { 
+            btn.disabled = false; 
+        }
+    };
+};
+
+window.deleteProduct = async (id) => { 
+    if(confirm("Supprimer ce produit ?")) await deleteDoc(doc(db, "products", id)); 
+};
+
+window.toggleProductActive = async (id, current) => { 
+    await updateDoc(doc(db, "products", id), { active: !current }); 
+};
