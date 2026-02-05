@@ -1,9 +1,9 @@
-import { auth, db, signOut, onAuthStateChanged } from './js/admin-core.js';
-import { renderDashboard } from './js/dashboard.js';
-import { renderOrders } from './js/orders.js';
-import { renderInventory } from './js/inventory.js';
-import { renderReports } from './js/reports.js';
-import { renderSettings } from './js/settings.js';
+import { auth, db, signOut, onAuthStateChanged } from './admin-core.js';
+import { renderDashboard } from './dashboard.js';
+import { renderOrders } from './orders.js';
+import { renderInventory } from './inventory.js';
+import { renderReports } from './reports.js';
+import { renderSettings } from './settings.js';
 
 // Configuration API Image
 const IMGBB_API_KEY = "daad728bfd5bc5f2739a9612b27c1410"; 
