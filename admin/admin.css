@@ -19,6 +19,67 @@
 .fade-in {
     animation: fadeIn 0.3s ease-in-out;
 }
+/* --- UI Menu Editor --- */
+
+/* Carte produit standard */
+.product-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    border-color: rgba(212, 175, 55, 0.3); /* Jaune doré */
+}
+
+/* Produit Masqué (Hidden) */
+.product-hidden {
+    opacity: 0.5;
+    filter: grayscale(100%);
+    border: 1px dashed #4b5563;
+}
+
+.product-hidden:hover {
+    opacity: 0.8;
+}
+
+/* Badge Hidden */
+.badge-hidden {
+    background-color: #374151;
+    color: #9ca3af;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Boutons Actions */
+.action-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    color: white;
+}
+
+.action-btn:hover {
+    transform: scale(1.1);
+}
+
+.action-btn.edit:hover { background: #3b82f6; } /* Bleu */
+.action-btn.delete:hover { background: #ef4444; } /* Rouge */
+.action-btn.visibility:hover { background: #eab308; color: black; } /* Jaune */
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(5px); }
