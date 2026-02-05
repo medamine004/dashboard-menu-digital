@@ -5,6 +5,13 @@ import { renderInventory } from './inventory.js';
 import { renderReports } from './reports.js';
 import { renderSettings } from './settings.js';
 
+// === Sidebar Toggle (GLOBAL) ===
+window.toggleSidebar = () => {
+  const sidebar = document.getElementById('sidebar');
+  if (!sidebar) return;
+  sidebar.classList.toggle('-translate-x-full');
+};
+
 // Configuration API Image
 const IMGBB_API_KEY = "daad728bfd5bc5f2739a9612b27c1410"; 
 
