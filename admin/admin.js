@@ -1,4 +1,4 @@
-import { auth, db, signOut, onAuthStateChanged } from './admin-core.js';
+import { auth, db, signOut, onAuthStateChanged } from './js/admin-core.js';
 import { renderDashboard } from './js/dashboard.js';
 import { renderOrders } from './js/orders.js';
 import { renderInventory } from './js/inventory.js';
