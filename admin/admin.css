@@ -1,4 +1,19 @@
-/* --- UI Menu Editor --- */
+/* admin.css */
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #111827; }
+::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+
+/* Animations */
+.fade-in { animation: fadeIn 0.3s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Loader */
+.loader-container { display: flex; justify-content: center; align-items: center; height: 100%; color: #6b7280; }
+
+/* --- UI Menu Editor (TON CODE) --- */
 
 /* Carte produit standard */
 .product-card {
@@ -52,10 +67,7 @@
     color: white;
 }
 
-.action-btn:hover {
-    transform: scale(1.1);
-}
-
-.action-btn.edit:hover { background: #3b82f6; } /* Bleu */
-.action-btn.delete:hover { background: #ef4444; } /* Rouge */
-.action-btn.visibility:hover { background: #eab308; color: black; } /* Jaune */
+.action-btn:hover { transform: scale(1.1); }
+.action-btn.edit:hover { background: #3b82f6; }
+.action-btn.delete:hover { background: #ef4444; }
+.action-btn.visibility:hover { background: #eab308; color: black; }
