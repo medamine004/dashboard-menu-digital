@@ -1,141 +1,71 @@
 <!DOCTYPE html>
-<html class="dark" lang="fr">
+<html lang="fr" class="dark">
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-    <title>Nextra Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nextra Admin SPA</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
-                extend: {
-                    colors: { "primary": "#D4AF37", "surface": "#121212", "bg-dark": "#050505" }
-                }
-            }
-        }
-    </script>
-    <style>
-        body { background-color: #050505; color: white; }
-        /* Fix mobile sidebar transition */
-        #sidebar { transition: transform 0.3s ease-in-out; }
-        .nav-item.active { background: rgba(212, 175, 55, 0.1); color: #D4AF37; border: 1px solid rgba(212, 175, 55, 0.2); }
-    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="admin.css">
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="bg-gray-900 text-white font-sans overflow-hidden">
 
-    <div id="mobile-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/80 z-20 hidden md:hidden backdrop-blur-sm"></div>
+    <div class="flex h-screen">
+        <div id="mobile-overlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden backdrop-blur-sm" onclick="toggleSidebar()"></div>
 
-    <aside id="sidebar" class="fixed md:relative z-30 w-64 h-full bg-surface border-r border-white/10 flex flex-col transform -translate-x-full md:translate-x-0">
-        <div class="h-16 flex items-center px-6 border-b border-white/10 justify-between">
-            <h1 class="font-bold text-xl tracking-tight text-white">NEXTRA <span class="text-primary text-xs">ADMIN</span></h1>
-            <button onclick="toggleSidebar()" class="md:hidden text-gray-400"><span class="material-symbols-outlined">close</span></button>
-        </div>
-        
-        <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
-            <a href="dashboard.html" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all">
-                <span class="material-symbols-outlined">dashboard</span> Dashboard
-            </a>
-            <a href="orders.html" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all">
-                <span class="material-symbols-outlined">orders</span> Commandes
-            </a>
-            <a href="menu-editor.html" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all">
-                <span class="material-symbols-outlined">restaurant_menu</span> Menu Editor
-            </a>
-            <a href="inventory.html" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all">
-                <span class="material-symbols-outlined">inventory_2</span> Stock
-            </a>
-            <a href="reports.html" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all">
-                <span class="material-symbols-outlined">bar_chart</span> Rapports
-            </a>
-            <a href="settings.html" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all">
-                <span class="material-symbols-outlined">settings</span> Paramètres
-            </a>
-        </nav>
-
-        <div class="p-4 border-t border-white/10">
-            <button onclick="window.logout()" class="flex items-center gap-3 px-3 py-3 text-red-400 hover:bg-red-500/10 rounded-lg w-full transition-all">
-                <span class="material-symbols-outlined">logout</span> Déconnexion
-            </button>
-        </div>
-    </aside>
-
-    <div class="flex-1 flex flex-col h-full relative overflow-hidden">
-        <header class="md:hidden h-16 bg-surface border-b border-white/10 flex items-center justify-between px-4 shrink-0">
-            <button onclick="toggleSidebar()" class="text-white"><span class="material-symbols-outlined">menu</span></button>
-            <span class="font-bold">Nextra</span>
-            <div class="w-6"></div>
-        </header>
-
-        <main class="flex-1 overflow-y-auto p-4 md:p-8 relative">
-            
-            <div id="dashboard-view">
-                <header class="mb-8">
-                    <h2 class="text-2xl font-bold text-white">Tableau de bord</h2>
-                    <p class="text-gray-500 text-sm">Vue d'ensemble de l'activité.</p>
-                </header>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                    <div class="bg-surface border border-white/10 p-5 rounded-xl">
-                        <p class="text-gray-400 text-xs font-bold uppercase">Chiffre d'Affaires</p>
-                        <h3 class="text-2xl font-bold text-white mt-2" id="stat-revenue">0.00 DT</h3>
-                    </div>
-                    <div class="bg-surface border border-white/10 p-5 rounded-xl">
-                        <p class="text-gray-400 text-xs font-bold uppercase">Commandes Actives</p>
-                        <h3 class="text-2xl font-bold text-primary mt-2" id="stat-active">0</h3>
-                    </div>
-                    <div class="bg-surface border border-white/10 p-5 rounded-xl">
-                        <p class="text-gray-400 text-xs font-bold uppercase">Profit Net (Est.)</p>
-                        <h3 class="text-2xl font-bold text-green-400 mt-2" id="stat-profit">0.00 DT</h3>
-                    </div>
-                    <div class="bg-surface border border-white/10 p-5 rounded-xl">
-                        <p class="text-gray-400 text-xs font-bold uppercase">Occupation</p>
-                        <h3 class="text-2xl font-bold text-white mt-2" id="stat-occupancy">0%</h3>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-surface border border-white/10 p-6 rounded-xl">
-                        <h3 class="font-bold mb-4">Ventes (7 jours)</h3>
-                        <canvas id="revenueChart" style="max-height: 250px;"></canvas>
-                    </div>
-                    <div class="bg-surface border border-white/10 p-6 rounded-xl flex flex-col">
-                        <h3 class="font-bold mb-4">Dernières Activités</h3>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm text-gray-400">
-                                <tbody id="activity-log" class="divide-y divide-white/5">
-                                    <tr><td class="py-3">Chargement...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+        <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-gray-800 border-r border-gray-700 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col shrink-0">
+            <div class="h-16 flex items-center justify-center border-b border-gray-700">
+                <h1 class="text-2xl font-bold text-yellow-500 tracking-wider">NEXTRA <span class="text-xs text-white">ADMIN</span></h1>
             </div>
+
+            <nav class="flex-1 overflow-y-auto py-4 px-2 space-y-1">
+                <button onclick="window.switchTab('dashboard')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white flex items-center gap-3 transition">
+                    <i class="fa-solid fa-chart-line w-5 text-center"></i> Dashboard
+                </button>
+                <button onclick="window.switchTab('orders')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white flex items-center gap-3 transition">
+                    <i class="fa-solid fa-bell w-5 text-center"></i> Commandes
+                </button>
+                <button onclick="window.switchTab('menu')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white flex items-center gap-3 transition">
+                    <i class="fa-solid fa-utensils w-5 text-center"></i> Menu Editor
+                </button>
+                <button onclick="window.switchTab('inventory')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white flex items-center gap-3 transition">
+                    <i class="fa-solid fa-boxes-stacked w-5 text-center"></i> Stock
+                </button>
+                <button onclick="window.switchTab('reports')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white flex items-center gap-3 transition">
+                    <i class="fa-solid fa-file-invoice w-5 text-center"></i> Rapports
+                </button>
+                <button onclick="window.switchTab('settings')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white flex items-center gap-3 transition">
+                    <i class="fa-solid fa-cog w-5 text-center"></i> Paramètres
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-gray-700">
+                <button onclick="window.handleLogout()" class="w-full bg-red-600/10 hover:bg-red-600/20 text-red-500 border border-red-500/20 py-2 rounded-lg transition flex items-center justify-center gap-2 font-bold text-sm">
+                    <i class="fa-solid fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </div>
+        </aside>
+
+        <div class="flex-1 flex flex-col h-full overflow-hidden relative w-full">
+            <header class="h-16 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-4 lg:hidden shrink-0">
+                <button onclick="window.toggleSidebar()" class="text-white text-xl"><i class="fa-solid fa-bars"></i></button>
+                <span class="font-bold text-lg text-yellow-500">Nextra Admin</span>
+                <div class="w-6"></div>
+            </header>
+
+            <main id="page-content" class="flex-1 overflow-y-auto p-4 lg:p-8 relative">
+                <div class="loader-container">
+                    <i class="fa-solid fa-circle-notch fa-spin text-4xl"></i>
+                </div>
             </main>
+        </div>
     </div>
 
-    <script>
-        function toggleSidebar() {
-            const sb = document.getElementById('sidebar');
-            const ov = document.getElementById('mobile-overlay');
-            if(sb.classList.contains('-translate-x-full')) {
-                sb.classList.remove('-translate-x-full');
-                ov.classList.remove('hidden');
-            } else {
-                sb.classList.add('-translate-x-full');
-                ov.classList.add('hidden');
-            }
-        }
-        // Highlight active link
-        const currentParams = window.location.pathname.split('/').pop() || 'dashboard.html';
-        document.querySelectorAll('.nav-item').forEach(link => {
-            if(link.getAttribute('href') === currentParams) link.classList.add('active');
-        });
-    </script>
-    
-    <script type="module" src="js/admin-dashboard.js"></script>
+    <div id="modal-container" class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"></div>
+
+    <script type="module" src="admin/js/admin.js"></script>
+
+
 </body>
 </html>
