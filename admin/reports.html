@@ -1,40 +1,17 @@
-<main class="flex-1 flex flex-col h-full relative overflow-hidden">
-    <div class="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8">
-        <header class="mb-8">
-            <h2 class="text-3xl font-bold text-white">Rapports & Performances</h2>
-            <p class="text-gray-500">Analyses mensuelles détaillées.</p>
-        </header>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-surface border border-border-color p-6 rounded-2xl">
-                <h3 class="text-gray-400 text-sm font-bold uppercase">Total Commandes (Mois)</h3>
-                <p class="text-3xl font-black text-white mt-2" id="report-total-orders">0</p>
-            </div>
-            <div class="bg-surface border border-border-color p-6 rounded-2xl">
-                <h3 class="text-gray-400 text-sm font-bold uppercase">Panier Moyen</h3>
-                <p class="text-3xl font-black text-primary mt-2" id="report-avg-cart">0.00 DT</p>
-            </div>
-            <div class="bg-surface border border-border-color p-6 rounded-2xl">
-                <h3 class="text-gray-400 text-sm font-bold uppercase">Taux d'annulation</h3>
-                <p class="text-3xl font-black text-red-400 mt-2" id="report-cancel-rate">0%</p>
-            </div>
+<div id="reports-view">
+    <header class="mb-6"><h2 class="text-2xl font-bold text-white">Rapports Mensuels</h2></header>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="bg-surface border border-white/10 p-5 rounded-xl">
+            <p class="text-gray-400 text-xs font-bold uppercase">Total Commandes</p>
+            <h3 class="text-2xl font-bold text-white mt-2" id="report-total">0</h3>
         </div>
-
-        <div class="bg-surface border border-border-color p-6 rounded-2xl mb-8">
-            <h3 class="font-bold mb-6">Évolution du Chiffre d'Affaires (30 jours)</h3>
-            <div class="w-full h-80">
-                <canvas id="monthlyChart"></canvas>
-            </div>
-        </div>
-
-        <div class="bg-surface border border-border-color rounded-2xl p-6">
-            <h3 class="font-bold mb-4 text-red-400">Alertes & Problèmes</h3>
-            <ul class="space-y-3" id="report-issues-list">
-                <li class="flex items-center gap-3 text-sm text-gray-400">
-                    <span class="material-symbols-outlined text-green-500">check_circle</span>
-                    Aucun problème critique signalé ce mois-ci.
-                </li>
-            </ul>
+        <div class="bg-surface border border-white/10 p-5 rounded-xl">
+            <p class="text-gray-400 text-xs font-bold uppercase">Panier Moyen</p>
+            <h3 class="text-2xl font-bold text-primary mt-2" id="report-avg">0.00 DT</h3>
         </div>
     </div>
-</main>
+    <div class="bg-surface border border-white/10 p-6 rounded-xl">
+        <h3 class="font-bold mb-4 text-white">Performance Mensuelle</h3>
+        <canvas id="monthlyChart" style="max-height: 300px;"></canvas>
+    </div>
+</div>
