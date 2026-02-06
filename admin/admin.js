@@ -15,20 +15,7 @@ window.toggleSidebar = () => {
 // Configuration API Image
 const IMGBB_API_KEY = "daad728bfd5bc5f2739a9612b27c1410"; 
 
-// --- 1. INITIALISATION & AUTH ---
-document.addEventListener('DOMContentLoaded', () => {
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            console.log("✅ Admin connecté:", user.email);
-            switchTab('dashboard');
-        } else {
-            console.warn("⚠️ Aucun user : Mode Fallback (Test) activé");
-            // En production, décommente la ligne suivante :
-            // window.location.href = "login.html"; 
-            switchTab('dashboard'); // Force l'accès pour le test
-        }
-    });
-});
+
 
 // --- 2. ROUTEUR SPA (SwitchTab) ---
 window.switchTab = (tabName) => {
