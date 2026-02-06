@@ -1,19 +1,21 @@
 /* admin.css */
 
-/* Scrollbar */
+/* Scrollbar Personnalisée */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: #111827; }
 ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
 
-/* Animations */
+/* Animations Globales */
 .fade-in { animation: fadeIn 0.3s ease-in-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Loader */
+/* Loader Centré */
 .loader-container { display: flex; justify-content: center; align-items: center; height: 100%; color: #6b7280; }
 
-/* --- UI Menu Editor (TON CODE) --- */
+/* ============================ */
+/* STYLES MENU EDITOR & PRODUITS */
+/* ============================ */
 
 /* Carte produit standard */
 .product-card {
@@ -29,19 +31,19 @@
 
 /* Produit Masqué (Hidden) */
 .product-hidden {
-    opacity: 0.5;
+    opacity: 0.6;
     filter: grayscale(100%);
     border: 1px dashed #4b5563;
 }
 
 .product-hidden:hover {
-    opacity: 0.8;
+    opacity: 0.9; /* Un peu plus visible au survol */
 }
 
-/* Badge Hidden */
+/* Badge Hidden (Masqué) */
 .badge-hidden {
     background-color: #374151;
-    color: #9ca3af;
+    color: #d1d5db;
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -53,21 +55,23 @@
     letter-spacing: 0.5px;
 }
 
-/* Boutons Actions */
+/* Boutons Actions (Flottants sur l'image) */
 .action-btn {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    transition: all 0.2s;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(4px);
     color: white;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
 }
 
 .action-btn:hover { transform: scale(1.1); }
-.action-btn.edit:hover { background: #3b82f6; }
-.action-btn.delete:hover { background: #ef4444; }
-.action-btn.visibility:hover { background: #eab308; color: black; }
+.action-btn.visibility:hover { background: #eab308; color: black; } /* Jaune */
+.action-btn.edit:hover { background: #3b82f6; } /* Bleu */
+.action-btn.delete:hover { background: #ef4444; } /* Rouge */
