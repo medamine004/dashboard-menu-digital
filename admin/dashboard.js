@@ -49,8 +49,8 @@ export function renderDashboard(container) {
       const o = doc.data();
       if (!o.timestamp) return;
 
-      const price = Number(o.price || 0);
-      const qty = Number(o.qty || 1);
+      const price = Number(o.price ?? 0);
+      const qty = Number(o.qty ?? 1);
       const amount = price * qty;
 
       count++;
