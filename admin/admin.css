@@ -182,3 +182,42 @@ table {
         z-index: 40;
     }
 }
+/* ... (Garde tout ton code CSS précédent) ... */
+
+/* ============================ */
+/* 🔥 FIX SCROLL COLONNES COMMANDES */
+/* ============================ */
+
+/* Conteneur de la grille (Parent des 3 colonnes) */
+.orders-grid-container {
+    /* Hauteur calculée : 100% de la vue - Header (64px) - Padding/Titre (~100px) */
+    height: calc(100dvh - 140px); 
+    min-height: 400px;
+    overflow: hidden; /* Empêche la grille elle-même de scroller */
+}
+
+/* La liste scrollable à l'intérieur de la carte */
+.kanban-list {
+    flex: 1;                /* Prend tout l'espace restant */
+    overflow-y: auto;       /* Active le scroll vertical */
+    overflow-x: hidden;     /* Cache le scroll horizontal */
+    
+    /* FIX CRITIQUE IOS & MOBILE */
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    
+    /* FIX FLEXBOX SCROLL BUG */
+    min-height: 0; 
+    height: 100%;
+}
+
+/* Style des cartes dans la liste (Optionnel, pour propreté) */
+.order-card-item {
+    cursor: pointer;
+    transition: transform 0.2s;
+    /* Évite que le texte sélectionné bloque le scroll tactile */
+    user-select: none; 
+}
+.order-card-item:active {
+    transform: scale(0.98);
+}
