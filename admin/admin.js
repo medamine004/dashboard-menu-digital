@@ -1,4 +1,12 @@
-
+import {
+  db,
+  collection,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  onSnapshot
+} from "../core/data.js";
 import { renderDashboard } from './dashboard.js';
 import { renderOrders } from './orders.js';
 import { renderInventory } from './inventory.js';
