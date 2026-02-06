@@ -1,4 +1,5 @@
-import { db, collection, query, orderBy, onSnapshot } from './admin-core.js';
+import { db, collection, query, orderBy, onSnapshot } 
+from '../core/data.js';
 
 export function renderDashboard(container) {
     container.innerHTML = `
