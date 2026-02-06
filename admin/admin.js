@@ -226,4 +226,8 @@ document.addEventListener('DOMContentLoaded', () => {
     window.switchTab('dashboard');
   }, 100);
 });
+// ===== EDIT PRODUCT (TEMP TEST) =====
+window.openEditProductModal = function (id) {
+  alert("Edit product ID: " + id);
+};
 
