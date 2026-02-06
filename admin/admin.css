@@ -1,17 +1,73 @@
-/* admin.css */
+/* ========================= */
+/* admin.css – FIXED MOBILE SCROLL */
+/* ========================= */
 
+/* 🔹 RESET + FIX SCROLL MOBILE */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* مهم للآيفون */
+    touch-action: pan-y;
+    background-color: #0f172a;
+}
+
+/* أي container رئيسي */
+#app,
+.main-content,
+.dashboard-container {
+    min-height: 100vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ============================ */
 /* Scrollbar Personnalisée */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #111827; }
-::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+/* ============================ */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #111827;
+}
+::-webkit-scrollbar-thumb {
+    background: #374151;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #4b5563;
+}
 
+/* ============================ */
 /* Animations Globales */
-.fade-in { animation: fadeIn 0.3s ease-in-out; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+/* ============================ */
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
+/* ============================ */
 /* Loader Centré */
-.loader-container { display: flex; justify-content: center; align-items: center; height: 100%; color: #6b7280; }
+/* ============================ */
+.loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #6b7280;
+}
 
 /* ============================ */
 /* STYLES MENU EDITOR & PRODUITS */
@@ -26,10 +82,10 @@
 .product-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-    border-color: rgba(212, 175, 55, 0.3); /* Jaune doré */
+    border-color: rgba(212, 175, 55, 0.3);
 }
 
-/* Produit Masqué (Hidden) */
+/* Produit Masqué */
 .product-hidden {
     opacity: 0.6;
     filter: grayscale(100%);
@@ -37,10 +93,10 @@
 }
 
 .product-hidden:hover {
-    opacity: 0.9; /* Un peu plus visible au survol */
+    opacity: 0.9;
 }
 
-/* Badge Hidden (Masqué) */
+/* Badge Hidden */
 .badge-hidden {
     background-color: #374151;
     color: #d1d5db;
@@ -55,7 +111,7 @@
     letter-spacing: 0.5px;
 }
 
-/* Boutons Actions (Flottants sur l'image) */
+/* Boutons Actions */
 .action-btn {
     width: 32px;
     height: 32px;
@@ -71,7 +127,38 @@
     border: none;
 }
 
-.action-btn:hover { transform: scale(1.1); }
-.action-btn.visibility:hover { background: #eab308; color: black; } /* Jaune */
-.action-btn.edit:hover { background: #3b82f6; } /* Bleu */
-.action-btn.delete:hover { background: #ef4444; } /* Rouge */
+.action-btn:hover {
+    transform: scale(1.1);
+}
+.action-btn.visibility:hover {
+    background: #eab308;
+    color: black;
+}
+.action-btn.edit:hover {
+    background: #3b82f6;
+}
+.action-btn.delete:hover {
+    background: #ef4444;
+}
+
+/* ============================ */
+/* 🔥 FIX TABLE SCROLL MOBILE */
+/* ============================ */
+table {
+    width: 100%;
+    overflow-x: auto;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    body {
+        overflow-y: auto !important;
+    }
+
+    .table-wrapper,
+    .content,
+    .page-content {
+        overflow-y: auto;
+        max-height: none;
+    }
+}
