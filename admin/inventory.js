@@ -34,23 +34,18 @@ export function renderInventory(container) {
       list.innerHTML += `
         <tr class="hover:bg-gray-700/50 transition">
 
-          <!-- PRODUIT -->
           <td class="p-4 flex items-center gap-3">
-            <img
-              src="${p.img || 'https://placehold.co/40'}"
-              class="w-8 h-8 rounded object-cover bg-gray-600"
-            />
+            <img src="${p.img || 'https://placehold.co/40'}"
+                 class="w-8 h-8 rounded object-cover bg-gray-600">
             <span class="text-white">${p.name || ''}</span>
           </td>
 
-          <!-- STOCK -->
           <td class="p-4 text-center font-mono font-bold ${
             stock < 10 ? 'text-red-500' : 'text-white'
           }">
             ${stock}
           </td>
 
-          <!-- ETAT -->
           <td class="p-4 text-center">
             ${
               stock < 10
@@ -59,24 +54,21 @@ export function renderInventory(container) {
             }
           </td>
 
-          <!-- ACTIONS -->
           <td class="p-4 text-center">
             <div class="flex gap-3 justify-center">
-
               <button
                 onclick="openEditProductModal('${d.id}')"
-                title="Modifier"
-                class="text-blue-400 hover:text-blue-600 text-lg">
+                class="text-blue-400 hover:text-blue-600 text-lg"
+                title="Modifier">
                 ✏️
               </button>
 
               <button
                 onclick="deleteProduct('${d.id}')"
-                title="Supprimer"
-                class="text-red-400 hover:text-red-600 text-lg">
+                class="text-red-400 hover:text-red-600 text-lg"
+                title="Supprimer">
                 🗑️
               </button>
-
             </div>
           </td>
 
