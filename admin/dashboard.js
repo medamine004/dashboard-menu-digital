@@ -3,7 +3,12 @@ from '../core/data.js';
 
 export function renderDashboard(container) {
     container.innerHTML = `
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 fade-in">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8 fade-in">
+        <div class="bg-gray-800 p-5 rounded-xl border-l-4 border-orange-500 shadow-lg">
+  <p class="text-gray-400 text-sm">Revenu du jour</p>
+  <h3 class="text-3xl font-bold mt-1 text-white" id="daily-revenue">0.0 DT</h3>
+  <p class="text-xs text-gray-500 mt-1">Aujourd’hui</p>
+</div>
             <div class="bg-gray-800 p-5 rounded-xl border-l-4 border-blue-500 shadow-lg">
                 <p class="text-gray-400 text-sm">Chiffre d'Affaires</p>
                 <h3 class="text-3xl font-bold mt-1 text-white" id="stat-revenue">...</h3>
@@ -20,6 +25,7 @@ export function renderDashboard(container) {
                 <p class="text-gray-400 text-sm">Total Commandes</p>
                 <h3 class="text-3xl font-bold mt-1 text-white" id="stat-count">...</h3>
             </div>
+            
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 fade-in">
             <div class="lg:col-span-2 bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
@@ -92,3 +98,31 @@ function initChart() {
         }
     });
 }
+// ===== Revenu du jour =====
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const q = query(collection(db, "orders"));
+
+onSnapshot(q, (snap) => {
+  let dailyTotal = 0;
+
+  snap.forEach(doc => {
+    const o = doc.data();
+
+    if (!o.createdAt || !o.total || !o.status) return;
+
+    const orderDate = o.createdAt.toDate();
+    orderDate.setHours(0, 0, 0, 0);
+
+    if (
+      orderDate.getTime() === today.getTime() &&
+      (o.status === "finished" || o.status === "served")
+    ) {
+      dailyTotal += o.total;
+    }
+  });
+
+  const el = document.getElementById("daily-revenue");
+  if (el) el.innerText = dailyTotal.toFixed(1) + " DT";
+});
