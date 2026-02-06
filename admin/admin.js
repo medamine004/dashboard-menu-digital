@@ -25,6 +25,10 @@ const IMGBB_API_KEY = "daad728bfd5bc5f2739a9612b27c1410";
 
 
 
+
+
+
+
 // --- 2. ROUTEUR SPA (SwitchTab) ---
 window.switchTab = (tabName) => {
     const container = document.getElementById('page-content');
@@ -215,3 +219,7 @@ window.deleteProduct = async (id) => {
 window.toggleProductActive = async (id, current) => { 
     await updateDoc(doc(db, "products", id), { active: !current }); 
 };
+// أي كود موجود
+
+switchTab('dashboard');
+
