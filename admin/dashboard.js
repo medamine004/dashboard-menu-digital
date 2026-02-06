@@ -1,4 +1,4 @@
-import { db, collection, query, orderBy, onSnapshot } from "../core/data.js";
+import { db, collection, query, onSnapshot } from "../core/data.js";
 
 export function renderDashboard(container) {
 
@@ -9,116 +9,120 @@ export function renderDashboard(container) {
       <div class="bg-gray-800 p-5 rounded-xl border-l-4 border-orange-500">
         <p class="text-gray-400 text-sm">Revenu du jour</p>
         <h3 class="text-3xl font-bold text-white" id="daily-revenue">0.0 DT</h3>
+        <p class="text-xs text-gray-500">Aujourd’hui</p>
       </div>
 
       <div class="bg-gray-800 p-5 rounded-xl border-l-4 border-blue-500">
         <p class="text-gray-400 text-sm">Chiffre d'Affaires</p>
-        <h3 class="text-3xl font-bold text-white" id="stat-revenue">0.0 DT</h3>
+        <h3 class="text-3xl font-bold text-white" id="total-revenue">0.0 DT</h3>
       </div>
 
       <div class="bg-gray-800 p-5 rounded-xl border-l-4 border-yellow-500">
         <p class="text-gray-400 text-sm">Commandes Actives</p>
-        <h3 class="text-3xl font-bold text-white" id="stat-active">0</h3>
+        <h3 class="text-3xl font-bold text-white" id="active-orders">0</h3>
       </div>
 
       <div class="bg-gray-800 p-5 rounded-xl border-l-4 border-green-500">
         <p class="text-gray-400 text-sm">Profit Net (Est.)</p>
-        <h3 class="text-3xl font-bold text-white" id="stat-profit">0.0 DT</h3>
+        <h3 class="text-3xl font-bold text-white" id="profit">0.0 DT</h3>
       </div>
 
       <div class="bg-gray-800 p-5 rounded-xl border-l-4 border-purple-500">
         <p class="text-gray-400 text-sm">Total Commandes</p>
-        <h3 class="text-3xl font-bold text-white" id="stat-count">0</h3>
+        <h3 class="text-3xl font-bold text-white" id="orders-count">0</h3>
       </div>
 
     </div>
 
-    <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
-      <h3 class="font-bold mb-4 text-white">Courbe des Ventes (Semaine)</h3>
-      <div class="h-64">
-        <canvas id="revenueChart"></canvas>
+    <div class="bg-gray-800 p-6 rounded-xl">
+      <h3 class="text-white font-bold mb-4">Courbe des Ventes (Semaine)</h3>
+      <div class="h-72">
+        <canvas id="weekChart"></canvas>
       </div>
     </div>
   `;
 
-  // ================= LOGIC =================
+  loadDashboardData();
+}
 
-  const days = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
-  const weekData = [0, 0, 0, 0, 0, 0, 0];
+// ================= LOGIC =================
+
+function loadDashboardData() {
+
+  const ordersRef = query(collection(db, "orders"));
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const q = query(collection(db, "orders"), orderBy("timestamp", "desc"));
+  const weekRevenue = [0, 0, 0, 0, 0, 0, 0]; // Lun → Dim
 
-  onSnapshot(q, (snap) => {
+  onSnapshot(ordersRef, (snap) => {
 
     let totalRevenue = 0;
     let dailyRevenue = 0;
-    let active = 0;
-    let count = 0;
-
-    weekData.fill(0);
+    let activeOrders = 0;
+    let ordersCount = 0;
 
     snap.forEach(doc => {
       const o = doc.data();
+      ordersCount++;
+
+      const total = Number(o.total || 0);
+      const status = o.status;
+
+      // TOTAL
+      if (status !== "cancelled") {
+        totalRevenue += total;
+      }
+
+      // ACTIVE
+      if (status === "pending" || status === "preparing") {
+        activeOrders++;
+      }
+
+      // DATE
       if (!o.timestamp) return;
 
-      const price = Number(o.price || 0);
-      const qty = Number(o.qty || 1);
-      const amount = price * qty;
-
       const d = o.timestamp.toDate();
-      const dayIndex = d.getDay();
+      const dayIndex = (d.getDay() + 6) % 7; // Lun=0 … Dim=6
 
-      count++;
+      if (status === "completed") {
+        weekRevenue[dayIndex] += total;
 
-      if (o.status !== "cancelled") {
-        totalRevenue += amount;
-        weekData[dayIndex] += amount;
-      }
-
-      if (["pending", "preparing"].includes(o.status)) {
-        active++;
-      }
-
-      d.setHours(0, 0, 0, 0);
-      if (d.getTime() === today.getTime() && o.status === "completed") {
-        dailyRevenue += amount;
+        d.setHours(0,0,0,0);
+        if (d.getTime() === today.getTime()) {
+          dailyRevenue += total;
+        }
       }
     });
 
-    document.getElementById("stat-revenue").innerText =
-      totalRevenue.toFixed(1) + " DT";
+    // ===== UPDATE UI =====
+    document.getElementById("total-revenue").innerText = totalRevenue.toFixed(1) + " DT";
+    document.getElementById("daily-revenue").innerText = dailyRevenue.toFixed(1) + " DT";
+    document.getElementById("active-orders").innerText = activeOrders;
+    document.getElementById("orders-count").innerText = ordersCount;
+    document.getElementById("profit").innerText = (totalRevenue * 0.4).toFixed(1) + " DT";
 
-    document.getElementById("daily-revenue").innerText =
-      dailyRevenue.toFixed(1) + " DT";
-
-    document.getElementById("stat-active").innerText = active;
-    document.getElementById("stat-profit").innerText =
-      (totalRevenue * 0.4).toFixed(1) + " DT";
-    document.getElementById("stat-count").innerText = count;
-
-    drawChart(days, weekData);
+    drawWeekChart(weekRevenue);
   });
 }
 
 // ================= CHART =================
 
-let revenueChart;
+function drawWeekChart(data) {
 
-function drawChart(labels, data) {
-  const ctx = document.getElementById("revenueChart");
+  const ctx = document.getElementById("weekChart");
   if (!ctx) return;
 
-  if (revenueChart) revenueChart.destroy();
+  if (Chart.getChart(ctx)) {
+    Chart.getChart(ctx).destroy();
+  }
 
-  revenueChart = new Chart(ctx, {
+  new Chart(ctx, {
     type: "bar",
     data: {
-      labels,
+      labels: ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
       datasets: [{
-        label: "Ventes",
         data,
         backgroundColor: "#facc15",
         borderRadius: 6
