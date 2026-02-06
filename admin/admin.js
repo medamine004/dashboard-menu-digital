@@ -1,11 +1,4 @@
-import {
-  db,
-  collection,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc
-} from "./admin-core.js";
+
 import { renderDashboard } from './dashboard.js';
 import { renderOrders } from './orders.js';
 import { renderInventory } from './inventory.js';
