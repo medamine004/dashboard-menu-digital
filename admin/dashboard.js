@@ -37,6 +37,13 @@ export function renderDashboard(container) {
                 <ul id="activity-log" class="space-y-3 text-sm text-gray-400"></ul>
             </div>
         </div>
+        <div class="bg-gray-800 p-5 rounded-xl shadow-lg mt-6 fade-in">
+  <h3 class="text-white font-bold mb-3">
+    Produits les plus vendus (Aujourd’hui)
+  </h3>
+
+  <canvas id="top-products-chart" height="220"></canvas>
+</div>
     `;
 
     const q = query(collection(db, "orders"), orderBy("timestamp", "desc"));
@@ -125,4 +132,70 @@ onSnapshot(q, (snap) => {
 
   const el = document.getElementById("daily-revenue");
   if (el) el.innerText = dailyTotal.toFixed(1) + " DT";
+});
+// ===== TOP PRODUCTS DONUT (TODAY) =====
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const productsCount = {};
+const ordersQuery = query(collection(db, "orders"));
+
+onSnapshot(ordersQuery, (snap) => {
+  Object.keys(productsCount).forEach(k => delete productsCount[k]);
+
+  snap.forEach(doc => {
+    const o = doc.data();
+    if (!o.createdAt || !o.items || !o.status) return;
+
+    const d = o.createdAt.toDate();
+    d.setHours(0, 0, 0, 0);
+
+    if (
+      d.getTime() === today.getTime() &&
+      (o.status === "finished" || o.status === "served")
+    ) {
+      o.items.forEach(item => {
+        const name = item.name;
+        const qty = item.qty || 1;
+        productsCount[name] = (productsCount[name] || 0) + qty;
+      });
+    }
+  });
+
+  const labels = Object.keys(productsCount);
+  const data = Object.values(productsCount);
+
+  const ctx = document.getElementById("top-products-chart");
+  if (!ctx) return;
+
+  if (window.topProductsChart) {
+    window.topProductsChart.destroy();
+  }
+
+  window.topProductsChart = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: [
+          "#ef4444",
+          "#f59e0b",
+          "#22c55e",
+          "#3b82f6",
+          "#a855f7",
+          "#06b6d4"
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: "right",
+          labels: { color: "#e5e7eb" }
+        }
+      }
+    }
+  });
 });
