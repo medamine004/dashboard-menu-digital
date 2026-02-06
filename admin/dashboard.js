@@ -2,14 +2,9 @@ import { db, collection, query, orderBy, onSnapshot } from "../core/data.js";
 
 export function renderDashboard(container) {
 
-  /* ================= UI ================= */
+  // ================= UI =================
   container.innerHTML = `
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-
-      <div class="bg-gray-800 p-5 rounded-xl border-l-4 border-orange-500">
-        <p class="text-gray-400 text-sm">Revenu du jour</p>
-        <h3 class="text-3xl font-bold text-white" id="daily-revenue">0.0 DT</h3>
-      </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
 
       <div class="bg-gray-800 p-5 rounded-xl border-l-4 border-blue-500">
         <p class="text-gray-400 text-sm">Chiffre d'Affaires</p>
@@ -34,110 +29,76 @@ export function renderDashboard(container) {
     </div>
 
     <div class="bg-gray-800 p-6 rounded-xl">
-      <h3 class="font-bold mb-4 text-white">Courbe des Ventes</h3>
-      <canvas id="revenueChart" height="120"></canvas>
+      <h3 class="text-white font-bold mb-4">Courbe des Ventes</h3>
+      <div style="height:300px">
+        <canvas id="revenueChart"></canvas>
+      </div>
     </div>
   `;
 
-  /* ================= LOGIC ================= */
+  // ================= DATA =================
+  const q = query(collection(db, "orders"), orderBy("timestamp", "desc"));
 
-  const ordersRef = query(
-    collection(db, "orders"),
-    orderBy("timestamp", "desc")
-  );
-
-  onSnapshot(ordersRef, snap => {
-
-    let totalRevenue = 0;
-    let dailyRevenue = 0;
+  onSnapshot(q, (snap) => {
+    let total = 0;
     let active = 0;
     let count = 0;
 
-    const todayKey = new Date().toISOString().slice(0, 10);
-
-    const weekData = {
-      Lun: 0,
-      Mar: 0,
-      Mer: 0,
-      Jeu: 0,
-      Ven: 0,
-      Sam: 0,
-      Dim: 0
-    };
-
     snap.forEach(doc => {
       const o = doc.data();
-      if (!o.timestamp) return;
-
-      const date = o.timestamp.toDate();
-      const dayKey = date.toISOString().slice(0, 10);
-      const dayName = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"][date.getDay()];
-
-      const total = (Number(o.price) || 0) * (Number(o.qty) || 1);
-
       count++;
 
       if (o.status !== "cancelled") {
-        totalRevenue += total;
-        weekData[dayName] += total;
+        total += Number(o.total || 0);
       }
 
       if (["pending", "preparing"].includes(o.status)) {
         active++;
       }
-
-      if (
-        dayKey === todayKey &&
-        (o.status === "completed" || o.status === "served")
-      ) {
-        dailyRevenue += total;
-      }
     });
 
-    /* ===== KPIs ===== */
-    document.getElementById("stat-revenue").innerText =
-      totalRevenue.toFixed(1) + " DT";
-
-    document.getElementById("daily-revenue").innerText =
-      dailyRevenue.toFixed(1) + " DT";
-
+    document.getElementById("stat-revenue").innerText = total.toFixed(1) + " DT";
     document.getElementById("stat-active").innerText = active;
-
-    document.getElementById("stat-profit").innerText =
-      (totalRevenue * 0.4).toFixed(1) + " DT";
-
+    document.getElementById("stat-profit").innerText = (total * 0.4).toFixed(1) + " DT";
     document.getElementById("stat-count").innerText = count;
 
-    /* ===== CHART ===== */
-    initRevenueChart(Object.values(weekData));
+    initChart();
   });
 }
 
-/* ================= CHART ================= */
-
-function initRevenueChart(data) {
+// ================= CHART =================
+function initChart() {
   const ctx = document.getElementById("revenueChart");
-  if (!ctx) return;
+  if (!ctx || typeof Chart === "undefined") return;
 
-  if (Chart.getChart(ctx)) {
-    Chart.getChart(ctx).destroy();
-  }
+  const existing = Chart.getChart(ctx);
+  if (existing) existing.destroy();
 
   new Chart(ctx, {
     type: "bar",
     data: {
-      labels: ["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"],
+      labels: ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
       datasets: [{
-        data,
-        backgroundColor: "#EAB308",
+        label: "Ventes",
+        data: [120, 180, 300, 250, 200, 350, 400],
+        backgroundColor: "#facc15",
         borderRadius: 6
       }]
     },
     options: {
       responsive: true,
-      plugins: { legend: { display: false } },
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
       scales: {
-        y: { beginAtZero: true }
+        y: {
+          beginAtZero: true,
+          grid: { color: "#374151" }
+        },
+        x: {
+          grid: { display: false }
+        }
       }
     }
   });
