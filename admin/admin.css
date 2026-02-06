@@ -1,31 +1,69 @@
-/* ========================= */
-/* admin.css – FIXED MOBILE SCROLL */
-/* ========================= */
+/* ============================================== */
+/* admin.css – FINAL FIX MOBILE SCROLL IOS/SAFARI */
+/* ============================================== */
 
-/* 🔹 RESET + FIX SCROLL MOBILE */
-html, body {
+/* 🔹 1. RESET CRITIQUE SPA & MOBILE */
+html {
     height: 100%;
+    /* Utilise 100% pour éviter les bugs de recalcul sur mobile */
+    overflow: hidden; 
+}
+
+body {
+    height: 100%;
+    height: 100dvh; /* Fix magique pour Safari iOS (barre d'adresse dynamique) */
+    width: 100%;
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch; /* مهم للآيفون */
-    touch-action: pan-y;
-    background-color: #0f172a;
+    background-color: #111827; /* gray-900 */
+    color: white;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    
+    /* Empêche le rebond élastique de toute la page sur iOS */
+    overscroll-behavior-y: none;
+    /* Bloque le scroll sur body, on le délègue au #page-content */
+    overflow: hidden; 
 }
 
-/* أي container رئيسي */
-#app,
-.main-content,
-.dashboard-container {
-    min-height: 100vh;
+/* 🔹 2. CONTENEUR PRINCIPAL (Layout Flex) */
+/* Cible la div .flex.h-screen qui englobe Sidebar + Main */
+body > div.flex {
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+/* 🔹 3. ZONE DE CONTENU SCROLLABLE */
+/* C'est ICI que le scroll doit se faire */
+#page-content {
+    flex: 1;
+    height: 100%;
+    overflow-y: auto; /* Active le scroll vertical */
+    overflow-x: hidden;
+    
+    /* 🚀 ESSENTIEL POUR IOS : Fluidité native */
+    -webkit-overflow-scrolling: touch; 
+    
+    /* Permet le rebond uniquement sur le contenu, pas la page */
+    overscroll-behavior-y: contain;
+    
+    /* Espace de sécurité pour le bas des iPhones (barre noire) */
+    padding-bottom: 120px; 
+}
+
+/* 🔹 4. SIDEBAR (Fixe sur Desktop, Overlay sur Mobile) */
+#sidebar {
+    /* La sidebar gère son propre scroll interne si le menu est long */
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 
 /* ============================ */
-/* Scrollbar Personnalisée */
+/* DESIGN & UI COMPONENTS */
 /* ============================ */
+
+/* Scrollbar Personnalisée (Webkit) */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -41,26 +79,16 @@ html, body {
     background: #4b5563;
 }
 
-/* ============================ */
-/* Animations Globales */
-/* ============================ */
+/* Animations */
 .fade-in {
-    animation: fadeIn 0.3s ease-in-out;
+    animation: fadeIn 0.3s ease-in-out forwards;
 }
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(5px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* ============================ */
-/* Loader Centré */
-/* ============================ */
+/* Loader */
 .loader-container {
     display: flex;
     justify-content: center;
@@ -70,19 +98,20 @@ html, body {
 }
 
 /* ============================ */
-/* STYLES MENU EDITOR & PRODUITS */
+/* MENU EDITOR & PRODUITS */
 /* ============================ */
 
-/* Carte produit standard */
+/* Carte produit */
 .product-card {
     transition: all 0.3s ease;
     border: 1px solid rgba(255, 255, 255, 0.05);
+    background-color: #1f2937; /* gray-800 fallback */
 }
 
 .product-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-    border-color: rgba(212, 175, 55, 0.3);
+    border-color: rgba(212, 175, 55, 0.3); /* Jaune doré */
 }
 
 /* Produit Masqué */
@@ -91,7 +120,6 @@ html, body {
     filter: grayscale(100%);
     border: 1px dashed #4b5563;
 }
-
 .product-hidden:hover {
     opacity: 0.9;
 }
@@ -126,39 +154,31 @@ html, body {
     cursor: pointer;
     border: none;
 }
-
-.action-btn:hover {
-    transform: scale(1.1);
-}
-.action-btn.visibility:hover {
-    background: #eab308;
-    color: black;
-}
-.action-btn.edit:hover {
-    background: #3b82f6;
-}
-.action-btn.delete:hover {
-    background: #ef4444;
-}
+.action-btn:hover { transform: scale(1.1); }
+.action-btn.visibility:hover { background: #eab308; color: black; }
+.action-btn.edit:hover { background: #3b82f6; }
+.action-btn.delete:hover { background: #ef4444; }
 
 /* ============================ */
-/* 🔥 FIX TABLE SCROLL MOBILE */
+/* TABLEAUX RESPONSIVE */
 /* ============================ */
 table {
     width: 100%;
-    overflow-x: auto;
-    display: block;
+    border-collapse: collapse;
 }
 
-@media (max-width: 768px) {
-    body {
-        overflow-y: auto !important;
+/* Sur mobile, on permet au tableau de scroller horizontalement */
+@media (max-width: 1024px) {
+    .overflow-x-auto {
+        -webkit-overflow-scrolling: touch;
+        overflow-x: auto;
+        padding-bottom: 10px; /* Espace pour le scrollbar */
     }
-
-    .table-wrapper,
-    .content,
-    .page-content {
-        overflow-y: auto;
-        max-height: none;
+    
+    /* Correction spécifique header mobile */
+    header {
+        position: sticky;
+        top: 0;
+        z-index: 40;
     }
 }
