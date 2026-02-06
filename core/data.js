@@ -1,20 +1,42 @@
 /**
  * CORE / DATA.JS
- * Configuration Firebase (Firestore + Storage)
+ * Configuration Firebase (Auth + Firestore + Storage)
  */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+/* ================= FIRESTORE ================= */
 import {
-  getFirestore, collection, onSnapshot,
-  addDoc, updateDoc, deleteDoc, doc,
-  query, orderBy, where, serverTimestamp
+  getFirestore,
+  collection,
+  onSnapshot,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  query,
+  orderBy,
+  where,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+/* ================= STORAGE ================= */
 import {
-  getStorage, ref, uploadBytes, getDownloadURL, deleteObject
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-// 🔥 إعدادات Firebase الحقيقية (صحيحة)
+/* ================= AUTH ================= */
+import {
+  getAuth,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+/* ================= CONFIG ================= */
+// 🔥 إعدادات Firebase (صحيحة)
 const firebaseConfig = {
   apiKey: "AIzaSyDgBp2JC51ADRcYtLLB-ksfZKrZcZbLJg",
   authDomain: "dashboard-menu-digital.firebaseapp.com",
@@ -24,16 +46,36 @@ const firebaseConfig = {
   appId: "1:1042043501192:web:81fbc8cf05a3e017877d3d"
 };
 
-// Initialisation Firebase
+/* ================= INIT ================= */
 const app = initializeApp(firebaseConfig);
+
 const db = getFirestore(app);
 const storage = getStorage(app);
+const auth = getAuth(app);
 
-// ✅ Export (مهم جدًا)
+/* ================= EXPORT ================= */
+// ✅ مهم جدًا – هذا يحل مشكلة signOut و auth نهائيًا
 export {
-  db, storage,
-  collection, onSnapshot,
-  addDoc, updateDoc, deleteDoc, doc,
-  query, orderBy, where, serverTimestamp,
-  ref, uploadBytes, getDownloadURL, deleteObject
+  db,
+  storage,
+  auth,
+  signOut,
+
+  // Firestore
+  collection,
+  onSnapshot,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  query,
+  orderBy,
+  where,
+  serverTimestamp,
+
+  // Storage
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject
 };
