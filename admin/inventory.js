@@ -47,12 +47,12 @@ export function renderInventory(container) {
           </td>
 
           <td class="p-4 text-center">
-            ${
-              stock < 10
-                ? <span class="text-red-400 font-bold text-xs bg-red-900/20 px-2 py-1 rounded">FAIBLE</span>
-                : <span class="text-green-400 font-bold text-xs">OK</span>
-            }
-          </td>
+  ${
+    stock < 10
+      ? `<span class="text-red-400 font-bold text-xs bg-red-900/20 px-2 py-1 rounded">FAIBLE</span>`
+      : `<span class="text-green-400 font-bold text-xs">OK</span>`
+  }
+</td>
 
           <td class="p-4 text-center">
             <div class="flex gap-3 justify-center">
