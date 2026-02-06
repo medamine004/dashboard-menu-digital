@@ -3,12 +3,18 @@ import { db, collection, query, orderBy, onSnapshot } from "../core/data.js";
 export function renderDashboard(container) {
 
   // ================= UI =================
+  // Note: Passage de lg:grid-cols-4 à lg:grid-cols-5 pour intégrer la 5ème carte proprement
   container.innerHTML = `
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
 
       <div class="bg-gray-800 p-5 rounded-xl border-l-4 border-blue-500">
         <p class="text-gray-400 text-sm">Chiffre d'Affaires</p>
         <h3 class="text-3xl font-bold text-white" id="stat-revenue">0.0 DT</h3>
+      </div>
+
+      <div class="bg-gray-800 p-5 rounded-xl border-l-4 border-pink-500">
+        <p class="text-gray-400 text-sm">Revenu du jour</p>
+        <h3 class="text-3xl font-bold text-white" id="stat-daily">0.0 DT</h3>
       </div>
 
       <div class="bg-gray-800 p-5 rounded-xl border-l-4 border-yellow-500">
@@ -43,13 +49,36 @@ export function renderDashboard(container) {
     let total = 0;
     let active = 0;
     let count = 0;
+    let dailyTotal = 0; // Variable pour le total du jour
+
+    // Date actuelle pour comparaison
+    const now = new Date();
+    const currentDay = now.getDate();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
 
     snap.forEach(doc => {
       const o = doc.data();
       count++;
 
       if (o.status !== "cancelled") {
-        total += Number(o.total || 0);
+        const amount = Number(o.total || 0);
+        
+        // Calcul Total Global
+        total += amount;
+
+        // Calcul Revenu du Jour
+        if (o.timestamp) {
+          const orderDate = o.timestamp.toDate(); // Conversion Firestore Timestamp -> JS Date
+          
+          if (
+            orderDate.getDate() === currentDay &&
+            orderDate.getMonth() === currentMonth &&
+            orderDate.getFullYear() === currentYear
+          ) {
+            dailyTotal += amount;
+          }
+        }
       }
 
       if (["pending", "preparing"].includes(o.status)) {
@@ -57,7 +86,9 @@ export function renderDashboard(container) {
       }
     });
 
+    // Mise à jour du DOM
     document.getElementById("stat-revenue").innerText = total.toFixed(1) + " DT";
+    document.getElementById("stat-daily").innerText = dailyTotal.toFixed(1) + " DT"; // Mise à jour carte jour
     document.getElementById("stat-active").innerText = active;
     document.getElementById("stat-profit").innerText = (total * 0.4).toFixed(1) + " DT";
     document.getElementById("stat-count").innerText = count;
