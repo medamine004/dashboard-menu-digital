@@ -1,8 +1,7 @@
-import { db, collection, query, orderBy, onSnapshot } from '../core/data.js';
+import { db, collection, query, orderBy, onSnapshot } from "../core/data.js";
 
 export function renderDashboard(container) {
 
-  // ================= UI =================
   container.innerHTML = `
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8 fade-in">
 
@@ -31,7 +30,6 @@ export function renderDashboard(container) {
         <p class="text-gray-400 text-sm">Total Commandes</p>
         <h3 class="text-3xl font-bold mt-1 text-white" id="stat-count">0</h3>
       </div>
-
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 fade-in">
@@ -52,14 +50,12 @@ export function renderDashboard(container) {
     </div>
   `;
 
-  // ================= LOGIC =================
-
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const ordersQuery = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+  const q = query(collection(db, "orders"), orderBy("timestamp", "desc"));
 
-  onSnapshot(ordersQuery, (snap) => {
+  onSnapshot(q, (snap) => {
 
     let total = 0;
     let dailyTotal = 0;
@@ -77,57 +73,47 @@ export function renderDashboard(container) {
       count++;
 
       if (o.status !== "cancelled") {
-        total += Number(o.total || 0);
+        total += Number(o.price || 0) * (o.qty || 1);
       }
 
-      if (["pending", "preparing"].includes(o.status)) {
-        active++;
-      }
+      if (["pending", "preparing"].includes(o.status)) active++;
 
-      if (o.createdAt) {
-        const d = o.createdAt.toDate();
-        d.setHours(0, 0, 0, 0);
+      const dateField = o.createdAt || o.timestamp;
+      if (!dateField) return;
 
-        if (
-          d.getTime() === today.getTime() &&
-          (o.status === "finished" || o.status === "served")
-        ) {
-          dailyTotal += Number(o.total || 0);
+      const d = dateField.toDate();
+      d.setHours(0, 0, 0, 0);
 
-          if (Array.isArray(o.items)) {
-            o.items.forEach(item => {
-              const name = item.name;
-              const qty = item.qty || 1;
-              productsCount[name] = (productsCount[name] || 0) + qty;
-            });
-          }
-        }
+      if (d.getTime() === today.getTime() && o.status === "completed") {
+        const amount = Number(o.price || 0) * (o.qty || 1);
+        dailyTotal += amount;
+
+        const name = o.name || "Produit";
+        productsCount[name] = (productsCount[name] || 0) + (o.qty || 1);
       }
 
       if (logs && logs.children.length < 5) {
         logs.innerHTML += `
           <li class="flex justify-between border-b border-gray-700 pb-2">
-            <span>Cmd #${o.orderId || "—"}</span>
-            <span class="text-white font-bold">${o.total || 0} DT</span>
+            <span>Cmd #${o.orderId || "---"}</span>
+            <span class="text-white font-bold">${(o.price * (o.qty || 1)).toFixed(1)} DT</span>
           </li>
         `;
       }
     });
 
-    // ===== KPIs =====
     document.getElementById("stat-revenue").innerText = total.toFixed(1) + " DT";
     document.getElementById("daily-revenue").innerText = dailyTotal.toFixed(1) + " DT";
     document.getElementById("stat-active").innerText = active;
     document.getElementById("stat-profit").innerText = (total * 0.4).toFixed(1) + " DT";
     document.getElementById("stat-count").innerText = count;
 
-    // ===== Charts =====
     initRevenueChart();
     initTopProductsChart(productsCount);
   });
 }
 
-// ================= CHARTS =================
+// ===== Charts =====
 
 function initRevenueChart() {
   const ctx = document.getElementById("revenueChart");
@@ -140,7 +126,6 @@ function initRevenueChart() {
     data: {
       labels: ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
       datasets: [{
-        label: "Ventes",
         data: [120, 190, 300, 250, 200, 350, 400],
         backgroundColor: "#EAB308",
         borderRadius: 4
