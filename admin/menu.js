@@ -1,18 +1,17 @@
 import { db, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, query, orderBy, onSnapshot } from './admin-core.js';
 
-// ⚠️ TA CLÉ IMGBB (Vérifie qu'elle est correcte)
+// ⚠️ TA CLÉ IMGBB
 const IMGBB_API_KEY = "daad728bfd5bc5f2739a9612b27c1410";
 
-// --- RENDER PAGE PRINCIPALE ---
+// --- RENDER MENU ---
 export function renderMenu(container) {
     container.innerHTML = `
         <div class="flex justify-between items-center mb-8 fade-in">
             <div>
                 <h2 class="text-3xl font-bold text-white tracking-tight">Menu Editor</h2>
-                <p class="text-gray-400 text-sm mt-1">Gérez votre carte, prix et disponibilités.</p>
+                <p class="text-gray-400 text-sm mt-1">Gérez votre carte, prix et visibilité.</p>
             </div>
-            <button onclick="window.openProductModal()" 
-                class="bg-yellow-500 hover:bg-yellow-400 text-black px-5 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-yellow-500/20 transition transform hover:scale-105">
+            <button onclick="window.openProductModal()" class="bg-yellow-500 hover:bg-yellow-400 text-black px-5 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-yellow-500/20 transition hover:scale-105">
                 <i class="fa-solid fa-plus"></i> Ajouter un plat
             </button>
         </div>
@@ -30,23 +29,19 @@ export function renderMenu(container) {
         if (!grid) return;
         grid.innerHTML = '';
         
-        // Collecter les catégories uniques pour les suggestions
+        // Pour stocker les catégories uniques
         const categories = new Set();
 
         if (snapshot.empty) {
-            grid.innerHTML = `
-                <div class="col-span-full flex flex-col items-center justify-center py-20 text-gray-500">
-                    <i class="fa-solid fa-utensils text-5xl mb-4 opacity-20"></i>
-                    <p>Aucun produit dans le menu.</p>
-                </div>`;
+            grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500">Aucun produit dans le menu.</div>`;
             return;
         }
 
         snapshot.forEach(docSnap => {
             const p = { id: docSnap.id, ...docSnap.data() };
-            categories.add(p.category); // Ajouter la catégorie au Set
+            if(p.category) categories.add(p.category);
 
-            // Définir l'état visuel (Masqué ou Visible)
+            // Logique Visibilité
             const isHidden = p.hidden === true;
             const hiddenClass = isHidden ? 'product-hidden' : '';
             const eyeIcon = isHidden ? 'fa-eye-slash' : 'fa-eye';
@@ -60,22 +55,19 @@ export function renderMenu(container) {
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60"></div>
                         
                         <div class="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-[-10px] group-hover:translate-y-0">
-                            
                             <button onclick="window.toggleVisibility('${p.id}', ${isHidden})" class="action-btn visibility" title="${isHidden ? 'Afficher' : 'Masquer'}">
                                 <i class="fa-solid ${eyeIcon}"></i>
                             </button>
-
                             <button onclick="window.openProductModal('${p.id}')" class="action-btn edit" title="Modifier">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
-                            
                             <button onclick="window.deleteProduct('${p.id}')" class="action-btn delete" title="Supprimer">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
 
                         <span class="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide border border-white/10">
-                            ${p.category}
+                            ${p.category || 'Non classé'}
                         </span>
                     </div>
 
@@ -84,11 +76,9 @@ export function renderMenu(container) {
                             <h3 class="font-bold text-lg text-white leading-tight">${p.name}</h3>
                             <span class="text-yellow-400 font-mono font-bold text-lg">${parseFloat(p.price).toFixed(1)} <span class="text-xs">DT</span></span>
                         </div>
-                        
                         <div class="flex justify-between items-center mt-4">
                             ${hiddenBadge}
                             ${!isHidden ? '<span></span>' : ''} 
-                            
                             <span class="text-xs text-gray-500 font-mono">ID: ${p.id.slice(0, 4)}</span>
                         </div>
                     </div>
@@ -96,7 +86,7 @@ export function renderMenu(container) {
             `;
         });
 
-        // Mettre à jour le Datalist avec les catégories existantes
+        // Remplir la datalist pour les suggestions de catégorie
         if(datalist) {
             datalist.innerHTML = Array.from(categories).map(cat => `<option value="${cat}">`).join('');
         }
@@ -104,7 +94,6 @@ export function renderMenu(container) {
 }
 
 // --- LOGIQUE MODAL (ADD & EDIT) ---
-// Cette fonction récupère les données depuis Firestore pour l'édition, ou reset pour l'ajout
 window.openProductModal = async (id = null) => {
     const modal = document.getElementById('modal-container');
     const form = document.getElementById('product-form');
@@ -122,7 +111,7 @@ window.openProductModal = async (id = null) => {
         // --- MODE ÉDITION ---
         title.innerText = "Modifier le Produit";
         
-        // Récupération propre avec getDoc importé statiquement
+        // Récupération des données fraîches
         const docRef = doc(db, "products", id);
         const docSnap = await getDoc(docRef);
 
@@ -138,7 +127,7 @@ window.openProductModal = async (id = null) => {
         }
     } else {
         // --- MODE AJOUT ---
-        title.innerText = "Ajouter un Produit";
+        title.innerText = "Nouveau Produit";
     }
 
     modal.classList.remove('hidden');
@@ -146,9 +135,7 @@ window.openProductModal = async (id = null) => {
     // Gestion de la preview image locale
     document.getElementById('p-file').onchange = (e) => {
         const file = e.target.files[0];
-        if (file) {
-            preview.src = URL.createObjectURL(file);
-        }
+        if (file) preview.src = URL.createObjectURL(file);
     };
 
     // Gestion du Submit
@@ -234,16 +221,10 @@ window.deleteProduct = async (id) => {
 
 // --- VISIBILITÉ (HIDE/SHOW) ---
 window.toggleVisibility = async (id, currentHiddenState) => {
-    // Note: currentHiddenState est passé par le HTML render
     try {
-        // On inverse l'état : si hidden=true, on veut false.
-        const newState = !currentHiddenState;
-        
         await updateDoc(doc(db, "products", id), { 
-            hidden: newState 
+            hidden: !currentHiddenState 
         });
-        
-        // Feedback visuel optionnel (Firestore mettra à jour l'UI automatiquement grâce au onSnapshot)
     } catch (e) {
         console.error("Erreur visibilité:", e);
     }
