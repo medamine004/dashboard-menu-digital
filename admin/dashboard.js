@@ -31,19 +31,10 @@ export function renderDashboard(container) {
       </div>
 
     </div>
-
-    <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
-      <h3 class="text-white font-bold mb-4">Courbe des Ventes (Semaine)</h3>
-      <div class="h-64">
-        <canvas id="revenueChart"></canvas>
-      </div>
-    </div>
   `;
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-
-  const weekData = [0, 0, 0, 0, 0, 0, 0]; // Lun → Dim
 
   const q = query(collection(db, "orders"), orderBy("timestamp", "desc"));
 
@@ -53,8 +44,6 @@ export function renderDashboard(container) {
     let daily = 0;
     let active = 0;
     let count = 0;
-
-    weekData.fill(0);
 
     snap.forEach(doc => {
       const o = doc.data();
@@ -75,13 +64,8 @@ export function renderDashboard(container) {
       }
 
       const d = o.timestamp.toDate();
-      const dayIndex = (d.getDay() + 6) % 7; // Lun=0 … Dim=6
-
-      if (o.status === "completed") {
-        weekData[dayIndex] += amount;
-      }
-
       d.setHours(0, 0, 0, 0);
+
       if (d.getTime() === today.getTime() && o.status === "completed") {
         daily += amount;
       }
@@ -92,37 +76,5 @@ export function renderDashboard(container) {
     document.getElementById("stat-active").innerText = active;
     document.getElementById("stat-profit").innerText = (total * 0.4).toFixed(1) + " DT";
     document.getElementById("stat-count").innerText = count;
-
-    renderWeekChart(weekData);
-  });
-}
-
-// ===== CHART =====
-function renderWeekChart(data) {
-  const ctx = document.getElementById("revenueChart");
-  if (!ctx) return;
-
-  if (Chart.getChart(ctx)) {
-    Chart.getChart(ctx).destroy();
-  }
-
-  new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
-      datasets: [{
-        data,
-        backgroundColor: "#EAB308",
-        borderRadius: 6
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { grid: { color: "#374151" } },
-        x: { grid: { display: false } }
-      }
-    }
   });
 }
