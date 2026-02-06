@@ -221,5 +221,9 @@ window.toggleProductActive = async (id, current) => {
 };
 // أي كود موجود
 
-switchTab('dashboard');
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    window.switchTab('dashboard');
+  }, 100);
+});
 
