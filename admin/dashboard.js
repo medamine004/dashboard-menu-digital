@@ -1,4 +1,4 @@
-import { db, collection, query, orderBy, onSnapshot } from "../core/data.js";
+import { db, collection, query, orderBy, onSnapshot } from '../core/data.js';
 
 export function renderDashboard(container) {
 
@@ -40,41 +40,52 @@ export function renderDashboard(container) {
 
   onSnapshot(q, (snap) => {
 
-    let total = 0;
-    let daily = 0;
+    let totalRevenue = 0;
+    let dailyRevenue = 0;
     let active = 0;
     let count = 0;
 
     snap.forEach(doc => {
       const o = doc.data();
-      if (!o.timestamp) return;
 
-      const price = Number(o.price ?? 0);
-      const qty = Number(o.qty ?? 1);
-      const amount = price * qty;
+      const price = Number(o.price || 0);
+      const qty = Number(o.qty || 1);
+      const orderTotal = price * qty;
 
       count++;
 
       if (o.status !== "cancelled") {
-        total += amount;
+        totalRevenue += orderTotal;
       }
 
-      if (o.status === "pending") {
+      if (["pending", "preparing"].includes(o.status)) {
         active++;
       }
 
-      const d = o.timestamp.toDate();
-      d.setHours(0, 0, 0, 0);
+      if (o.timestamp) {
+        const d = o.timestamp.toDate();
+        d.setHours(0, 0, 0, 0);
 
-      if (d.getTime() === today.getTime() && o.status === "completed") {
-        daily += amount;
+        if (
+          d.getTime() === today.getTime() &&
+          o.status === "completed"
+        ) {
+          dailyRevenue += orderTotal;
+        }
       }
     });
 
-    document.getElementById("daily-revenue").innerText = daily.toFixed(1) + " DT";
-    document.getElementById("stat-revenue").innerText = total.toFixed(1) + " DT";
+    document.getElementById("stat-revenue").innerText =
+      totalRevenue.toFixed(1) + " DT";
+
+    document.getElementById("daily-revenue").innerText =
+      dailyRevenue.toFixed(1) + " DT";
+
     document.getElementById("stat-active").innerText = active;
-    document.getElementById("stat-profit").innerText = (total * 0.4).toFixed(1) + " DT";
+
+    document.getElementById("stat-profit").innerText =
+      (totalRevenue * 0.4).toFixed(1) + " DT";
+
     document.getElementById("stat-count").innerText = count;
   });
 }
