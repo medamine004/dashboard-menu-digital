@@ -57,11 +57,17 @@ export function renderInventory(container) {
           <td class="p-4 text-center">
             <div class="flex gap-3 justify-center">
               <button
-                onclick="openEditProductModal('${d.id}')"
-                class="text-blue-400 hover:text-blue-600 text-lg"
-                title="Modifier">
-                ✏️
-              </button>
+  onclick="openProductModal(
+    '${d.id}',
+    '${p.name || ''}',
+    '${p.price || ''}',
+    '${p.cat || 'Plats'}',
+    '${p.img || ''}'
+  )"
+  class="text-blue-400 hover:text-blue-600 text-lg"
+  title="Modifier">
+  ✏️
+</button>
 
               <button
                 onclick="deleteProduct('${d.id}')"
