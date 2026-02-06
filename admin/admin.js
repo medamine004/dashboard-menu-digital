@@ -7,6 +7,8 @@ import {
   doc,
   onSnapshot
 } from "../core/data.js";
+
+import { auth, signOut } from "../core/data.js";
 import { renderDashboard } from './dashboard.js';
 import { renderOrders } from './orders.js';
 import { renderInventory } from './inventory.js';
@@ -230,4 +232,12 @@ document.addEventListener('DOMContentLoaded', () => {
 window.openEditProductModal = function (id) {
   alert("Edit product ID: " + id);
 };
-
+window.handleLogout = async () => {
+  try {
+    await signOut(auth);
+    window.location.href = "login.html";
+  } catch (error) {
+    console.error("Erreur de déconnexion :", error);
+    alert("Erreur lors de la déconnexion");
+  }
+};
