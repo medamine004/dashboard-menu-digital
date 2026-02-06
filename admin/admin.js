@@ -153,12 +153,13 @@ window.openProductModal = (id = '', name = '', price = '', cat = 'Plats', img = 
                 <div class="grid grid-cols-2 gap-4">
                     <div><label class="text-xs text-gray-400">Prix</label><input type="number" step="0.5" id="p-price" value="${price}" class="w-full bg-gray-800 border-gray-700 rounded p-3 text-white focus:border-yellow-500 outline-none" required></div>
                     <div><label class="text-xs text-gray-400">Catégorie</label>
-                        <select id="p-cat" class="w-full bg-gray-800 border-gray-700 rounded p-3 text-white focus:border-yellow-500 outline-none">
-                            <option value="Plats" ${cat === 'Plats' ? 'selected' : ''}>Plats</option>
-                            <option value="Sandwichs" ${cat === 'Sandwichs' ? 'selected' : ''}>Sandwichs</option>
-                            <option value="Boissons" ${cat === 'Boissons' ? 'selected' : ''}>Boissons</option>
-                            <option value="Desserts" ${cat === 'Desserts' ? 'selected' : ''}>Desserts</option>
-                        </select>
+                       <input 
+  type="text"
+  id="p-cat"
+  value="${cat}"
+  placeholder="Ex: Pizzas, Vegan, Spécialité maison..."
+  class="w-full bg-gray-800 border border-gray-700 rounded p-3 text-white focus:border-yellow-500 outline-none"
+/>
                     </div>
                 </div>
 
