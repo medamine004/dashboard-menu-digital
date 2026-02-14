@@ -1,35 +1,319 @@
-/* admin.css */
-/* Tailwind est chargé via CDN, pas besoin des directives @tailwind ici */
+/* ============================================== */
+/* admin.css – FINAL FIX MOBILE SCROLL IOS/SAFARI */
+/* ============================================== */
 
+/* 🔹 1. RESET CRITIQUE SPA & MOBILE */
+html {
+    height: 100%;
+    /* Utilise 100% pour éviter les bugs de recalcul sur mobile */
+    overflow: hidden; 
+}
+
+body {
+    height: 100%;
+    height: 100dvh; /* Fix magique pour Safari iOS (barre d'adresse dynamique) */
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #111827; /* gray-900 */
+    color: white;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    
+    /* Empêche le rebond élastique de toute la page sur iOS */
+    overscroll-behavior-y: none;
+    /* Bloque le scroll sur body, on le délègue au #page-content */
+    overflow: hidden; 
+}
+
+/* 🔹 2. CONTENEUR PRINCIPAL (Layout Flex) */
+/* Cible la div .flex.h-screen qui englobe Sidebar + Main */
+body > div.flex {
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+/* 🔹 3. ZONE DE CONTENU SCROLLABLE */
+/* C'est ICI que le scroll doit se faire */
+#page-content {
+    flex: 1;
+    height: 100%;
+    overflow-y: auto; /* Active le scroll vertical */
+    overflow-x: hidden;
+    
+    /* 🚀 ESSENTIEL POUR IOS : Fluidité native */
+    -webkit-overflow-scrolling: touch; 
+    
+    /* Permet le rebond uniquement sur le contenu, pas la page */
+    overscroll-behavior-y: contain;
+    
+    /* Espace de sécurité pour le bas des iPhones (barre noire) */
+    padding-bottom: 120px; 
+}
+
+/* 🔹 4. SIDEBAR (Fixe sur Desktop, Overlay sur Mobile) */
+#sidebar {
+    /* La sidebar gère son propre scroll interne si le menu est long */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+/* ============================ */
+/* DESIGN & UI COMPONENTS */
+/* ============================ */
+
+/* Scrollbar Personnalisée (Webkit) */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
 }
 ::-webkit-scrollbar-track {
-    background: #111827; /* gray-900 */
+    background: #111827;
 }
 ::-webkit-scrollbar-thumb {
-    background: #374151; /* gray-700 */
+    background: #374151;
     border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: #4b5563; /* gray-600 */
+    background: #4b5563;
 }
 
+/* Animations */
 .fade-in {
-    animation: fadeIn 0.3s ease-in-out;
+    animation: fadeIn 0.3s ease-in-out forwards;
 }
-
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(5px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Loader centré */
+/* Loader */
 .loader-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100%;
     color: #6b7280;
+}
+
+/* ============================ */
+/* MENU EDITOR & PRODUITS */
+/* ============================ */
+
+/* Carte produit */
+.product-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    background-color: #1f2937; /* gray-800 fallback */
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    border-color: rgba(212, 175, 55, 0.3); /* Jaune doré */
+}
+
+/* Produit Masqué */
+.product-hidden {
+    opacity: 0.6;
+    filter: grayscale(100%);
+    border: 1px dashed #4b5563;
+}
+.product-hidden:hover {
+    opacity: 0.9;
+}
+
+/* Badge Hidden */
+.badge-hidden {
+    background-color: #374151;
+    color: #d1d5db;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Boutons Actions */
+.action-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    color: white;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+}
+.action-btn:hover { transform: scale(1.1); }
+.action-btn.visibility:hover { background: #eab308; color: black; }
+.action-btn.edit:hover { background: #3b82f6; }
+.action-btn.delete:hover { background: #ef4444; }
+
+/* ============================ */
+/* TABLEAUX RESPONSIVE */
+/* ============================ */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Sur mobile, on permet au tableau de scroller horizontalement */
+@media (max-width: 1024px) {
+    .overflow-x-auto {
+        -webkit-overflow-scrolling: touch;
+        overflow-x: auto;
+        padding-bottom: 10px; /* Espace pour le scrollbar */
+    }
+    
+    /* Correction spécifique header mobile */
+    header {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+    }
+}
+/* ... (Garde tout ton code CSS précédent) ... */
+
+/* ============================ */
+/* 🔥 FIX SCROLL COLONNES COMMANDES */
+/* ============================ */
+
+/* Conteneur de la grille (Parent des 3 colonnes) */
+.orders-grid-container {
+    /* Hauteur calculée : 100% de la vue - Header (64px) - Padding/Titre (~100px) */
+    height: calc(100dvh - 140px); 
+    min-height: 400px;
+    overflow: hidden; /* Empêche la grille elle-même de scroller */
+}
+
+/* La liste scrollable à l'intérieur de la carte */
+.kanban-list {
+    flex: 1;                /* Prend tout l'espace restant */
+    overflow-y: auto;       /* Active le scroll vertical */
+    overflow-x: hidden;     /* Cache le scroll horizontal */
+    
+    /* FIX CRITIQUE IOS & MOBILE */
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    
+    /* FIX FLEXBOX SCROLL BUG */
+    min-height: 0; 
+    height: 100%;
+}
+
+/* Style des cartes dans la liste (Optionnel, pour propreté) */
+.order-card-item {
+    cursor: pointer;
+    transition: transform 0.2s;
+    /* Évite que le texte sélectionné bloque le scroll tactile */
+    user-select: none; 
+}
+.order-card-item:active {
+    transform: scale(0.98);
+}
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Background */
+body {
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #1f2937, #020617);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+/* Container */
+.login-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+}
+
+/* Card */
+.login-box {
+  width: 100%;
+  max-width: 360px;
+  background: rgba(31, 41, 55, 0.9);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  padding: 2rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.08);
+  text-align: center;
+}
+
+/* Title */
+.login-box h2 {
+  font-size: 1.6rem;
+  margin-bottom: 0.3rem;
+  color: #facc15;
+}
+
+/* Input */
+.login-input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  margin: 1rem 0;
+  border-radius: 12px;
+  border: 1px solid #374151;
+  background: #020617;
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.login-input::placeholder {
+  color: #6b7280;
+}
+
+.login-input:focus {
+  border-color: #facc15;
+  box-shadow: 0 0 0 2px rgba(250,204,21,0.25);
+}
+
+/* Button */
+.btn {
+  padding: 0.9rem;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #facc15, #eab308);
+  color: #020617;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(250,204,21,0.4);
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .login-box {
+    padding: 1.6rem;
+  }
 }

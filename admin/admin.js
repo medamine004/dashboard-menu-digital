@@ -1,27 +1,35 @@
-import { auth, db, signOut, onAuthStateChanged, collection, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot } from './admin-core.js';
+import {
+  db,
+  collection,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  onSnapshot
+} from "../core/data.js";
+
+import { auth, signOut } from "../core/data.js";
 import { renderDashboard } from './dashboard.js';
 import { renderOrders } from './orders.js';
 import { renderInventory } from './inventory.js';
 import { renderReports } from './reports.js';
 import { renderSettings } from './settings.js';
 
+// === Sidebar Toggle (GLOBAL) ===
+window.toggleSidebar = () => {
+  const sidebar = document.getElementById('sidebar');
+  if (!sidebar) return;
+  sidebar.classList.toggle('-translate-x-full');
+};
+
 // Configuration API Image
 const IMGBB_API_KEY = "daad728bfd5bc5f2739a9612b27c1410"; 
 
-// --- 1. INITIALISATION & AUTH ---
-document.addEventListener('DOMContentLoaded', () => {
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            console.log("✅ Admin connecté:", user.email);
-            switchTab('dashboard');
-        } else {
-            console.warn("⚠️ Aucun user : Mode Fallback (Test) activé");
-            // En production, décommente la ligne suivante :
-            // window.location.href = "login.html"; 
-            switchTab('dashboard'); // Force l'accès pour le test
-        }
-    });
-});
+
+
+
+
+
 
 // --- 2. ROUTEUR SPA (SwitchTab) ---
 window.switchTab = (tabName) => {
@@ -146,12 +154,13 @@ window.openProductModal = (id = '', name = '', price = '', cat = 'Plats', img = 
                 <div class="grid grid-cols-2 gap-4">
                     <div><label class="text-xs text-gray-400">Prix</label><input type="number" step="0.5" id="p-price" value="${price}" class="w-full bg-gray-800 border-gray-700 rounded p-3 text-white focus:border-yellow-500 outline-none" required></div>
                     <div><label class="text-xs text-gray-400">Catégorie</label>
-                        <select id="p-cat" class="w-full bg-gray-800 border-gray-700 rounded p-3 text-white focus:border-yellow-500 outline-none">
-                            <option value="Plats" ${cat === 'Plats' ? 'selected' : ''}>Plats</option>
-                            <option value="Sandwichs" ${cat === 'Sandwichs' ? 'selected' : ''}>Sandwichs</option>
-                            <option value="Boissons" ${cat === 'Boissons' ? 'selected' : ''}>Boissons</option>
-                            <option value="Desserts" ${cat === 'Desserts' ? 'selected' : ''}>Desserts</option>
-                        </select>
+                       <input 
+  type="text"
+  id="p-cat"
+  value="${cat}"
+  placeholder="Ex: Pizzas, Vegan, Spécialité maison..."
+  class="w-full bg-gray-800 border border-gray-700 rounded p-3 text-white focus:border-yellow-500 outline-none"
+/>
                     </div>
                 </div>
 
@@ -211,4 +220,24 @@ window.deleteProduct = async (id) => {
 
 window.toggleProductActive = async (id, current) => { 
     await updateDoc(doc(db, "products", id), { active: !current }); 
+};
+// أي كود موجود
+
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    window.switchTab('dashboard');
+  }, 100);
+});
+// ===== EDIT PRODUCT (TEMP TEST) =====
+window.openEditProductModal = function (id) {
+  alert("Edit product ID: " + id);
+};
+window.handleLogout = async () => {
+  try {
+    await signOut(auth);
+    window.location.href = "login.html";
+  } catch (error) {
+    console.error("Erreur de déconnexion :", error);
+    alert("Erreur lors de la déconnexion");
+  }
 };
